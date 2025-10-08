@@ -1,72 +1,129 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.InputSystem;
+using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 public class projectile : MonoBehaviour
 {
+    
     [SerializeField] float _InitialVelocity;
     [SerializeField] float _Angle;
     [SerializeField] float _Step;
     [SerializeField] private LineRenderer _Line;
     [SerializeField] private Transform _FirePoint;
+    [SerializeField] private Transform grandampos;
     private float _Height;
     private Camera _cam;
-
+    [SerializeField] GameObject Ember;
+    [SerializeField] Transform embertransform;
     public GameObject RallyCaller;
-    private float PickupDistance;
-    private bool emberIsPicked;
+   
 
+    [Header("Pickup Settings")]
+    [SerializeField] Transform holdArea;
+    private GameObject heldObj;
+    private Rigidbody heldObjRB;
+
+    [Header("Physics Parameters")]
+    [SerializeField] private float pickupRange;
+    [SerializeField] private float picupForce = 150.0f;
+
+    [SerializeField] private Grandma_Act grandmaact;
+    private InputAction _aiming;
+    private InputAction _throwing;
     private void Start()
     {
         _cam = Camera.main;
     }
-
-    private void Update()
+    /*
+    private void Awake()
     {
-        Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
+        grandmaact = new Grandma_Act();
+    }
+    private void OnEnable()
+    {
+        _aiming = grandmaact.Grandma.Aiming;
+        _aiming.Enable();
+
+
+        _throwing = grandmaact.Grandma.Throwing;
+       
+        _throwing.Enable();
+        
+
+    }
+
+
+    private void OnDisable()
+    {
+        _aiming.Disable();
+        _throwing.Disable();
+
+        grandmaact.Grandma.Rally.Disable();
+
+    }
+    */
+        void Update()
         {
-            Vector3 direction = hit.point - _FirePoint.position;
-            Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
-            Vector3 targetPos = new Vector3(groundDirection.magnitude, direction.y, 0);
-            float height = targetPos.y + targetPos.magnitude / 2f;
-            height = Mathf.Max(0.01f, height);
-            float angle;
-            float v0;
-            float time;
-            CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
-            DrawPath(groundDirection.normalized, v0, angle, time, _Step);
-            RallyCaller.transform.position = _Line.GetPosition(_Line.positionCount - 1);
-
-            PickupDistance = Vector3.Distance(_FirePoint.position, transform.position);
-            if (PickupDistance <= 3)
+           // Vector3 aimingSpoon = _aiming.ReadValue<Vector3>();
+            //Vector3 trueaim = new Vector3(aimingSpoon.x, aimingSpoon.y, aimingSpoon.z).normalized;
+            Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
             {
-                if (Input.GetKeyDown(KeyCode.E) && emberIsPicked == false && _FirePoint.childCount < 1)
-                {
-                    GetComponent<Rigidbody>().useGravity = false;
-                    GetComponent<BoxCollider>().enabled = false;
-                    this.transform.position = _FirePoint.position;
-                    this.transform.parent = GameObject.Find("Spoon").transform;
-                    emberIsPicked = true;
+                Vector3 direction = hit.point - _FirePoint.position;
+                Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
+                Vector3 targetPos = new Vector3(groundDirection.magnitude, direction.y, 0);
+                float height = targetPos.y + targetPos.magnitude / 2f;
+                height = Mathf.Max(0.01f, height);
+                float angle;
+                float v0;
+                float time;
+                CalculatePathWithHeight(targetPos, height, out v0, out angle, out time);
+                DrawPath(groundDirection.normalized, v0, angle, time, _Step);
+                RallyCaller.transform.position = _Line.GetPosition(_Line.positionCount - 1);
+
+
+                if (Input.GetMouseButtonDown(0) )//_throwing.WasReleasedThisFrame()
+            {
+                    if (heldObj == null)
+                    {
+                        RaycastHit hitting;
+                        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hitting) & Input.GetMouseButtonUp(0))
+                        {
+
+                            PickupObject(hitting.transform.gameObject);
+                            GetComponent<RoughEmberPathing>().enabled = false;
+                            print("ember ispicked up");
+                        }
+                        else
+                        {
+
+                            StopAllCoroutines();
+
+                            StartCoroutine(Coroutine_Movement(groundDirection.normalized, v0, angle, time));
+                            DropObject();
+                            print("Ember is thrown");
+                        }
+                    }
+                    if (heldObj != null)
+                    {
+                        MOveing();
+                    }
+
                 }
-            }
-            if (Input.GetKeyUp(KeyCode.Space) && emberIsPicked == true)
-            {
 
-                StopAllCoroutines();
 
-                StartCoroutine(Coroutine_Movement(groundDirection.normalized, v0, angle, time));
-                GetComponent<Rigidbody>().useGravity = true;
-                GetComponent<BoxCollider>().enabled = true;
-                this.transform.parent = null;
-                emberIsPicked = false;
+
 
             }
         }
-
-
-    }
+    
     private void DrawPath(Vector3 direction, float v0, float angle, float time, float step)
     {
         step = Mathf.Max(0.01f, step);
@@ -129,9 +186,47 @@ public class projectile : MonoBehaviour
         {
             float x = v0 * t * Mathf.Cos(angle);
             float y = v0 * t * Mathf.Sin(angle) - (1f / 2f) * -Physics.gravity.y * Mathf.Pow(t, 2);
-            transform.position = _FirePoint.position + direction * x + Vector3.up * y;
+            transform.position = _FirePoint.position + direction * x + Vector3.up * y ;
             t += Time.deltaTime;
             yield return null;
         }
     }
+
+
+    void PickupObject(GameObject pickObj)
+    {
+        if (pickObj.GetComponent<Rigidbody>())
+        {
+            heldObjRB = pickObj.GetComponent<Rigidbody>();
+            heldObjRB.useGravity = false;
+            heldObjRB.linearDamping = 10;
+            heldObjRB.constraints = RigidbodyConstraints.FreezeRotation;
+
+            heldObjRB.transform.parent = holdArea;
+            heldObj = pickObj;
+        }
+    }
+
+    void DropObject()
+    {
+        
+            
+            heldObjRB.useGravity = true;
+            heldObjRB.linearDamping = 1;
+            heldObjRB.constraints = RigidbodyConstraints.None;
+
+        heldObj.transform.parent = null;
+        heldObj = null;
+        
+    }
+
+    void MOveing()
+    {
+        if(Vector3.Distance(heldObj.transform.position, holdArea.position)> 0.1f)
+        {
+            Vector3 moveDirectioning = (holdArea.position - heldObj.transform.position);
+            heldObjRB.AddForce(moveDirectioning * picupForce);
+        }
+    }
+   
 }

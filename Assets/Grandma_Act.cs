@@ -89,7 +89,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
     ""name"": ""Grandma_Act"",
     ""maps"": [
         {
-            ""name"": ""GrandmaActions"",
+            ""name"": ""Grandma"",
             ""id"": ""728a1b8f-7bb6-4538-95c6-0cee90739fa5"",
             ""actions"": [
                 {
@@ -103,9 +103,9 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Aiming"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""e540f874-fd4c-4183-b813-a4249554d781"",
-                    ""expectedControlType"": ""Delta"",
+                    ""expectedControlType"": ""Vector3"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -131,8 +131,19 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
             ],
             ""bindings"": [
                 {
+                    ""name"": """",
+                    ""id"": ""4f78fbaa-f4d5-4766-a8c6-7d75a5d93ec5"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";GrandmaControlls"",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""2D Vector"",
-                    ""id"": ""c78e7407-034f-4fd0-ba76-0c2348cb5e44"",
+                    ""id"": ""9abb5099-48bc-44f4-9ff1-572663df1018"",
                     ""path"": ""2DVector"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -143,58 +154,47 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""up"",
-                    ""id"": ""fa46aa88-cc8d-4057-b3e2-b1297ab9c834"",
+                    ""id"": ""41f40e3a-7a2c-489e-8835-c28b766a2b08"",
                     ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""GrandmaControlls"",
+                    ""groups"": "";GrandmaControlls"",
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""down"",
-                    ""id"": ""a7ea8b21-18bf-47b0-8399-f054d52b0338"",
+                    ""id"": ""2b86b6bf-4bcc-450c-b18a-c68ab6b185d5"",
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""GrandmaControlls"",
+                    ""groups"": "";GrandmaControlls"",
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""left"",
-                    ""id"": ""7136af5d-6f61-4959-9159-b57444a4cad6"",
-                    ""path"": ""<Keyboard>/d"",
+                    ""id"": ""4d53d53c-3a4c-4419-9f32-0ab61dc8eb19"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""GrandmaControlls"",
+                    ""groups"": "";GrandmaControlls"",
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""right"",
-                    ""id"": ""96ffffcf-de2a-4212-8581-f46547a405e6"",
-                    ""path"": ""<Keyboard>/a"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""GrandmaControlls"",
-                    ""action"": ""Movement"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4f78fbaa-f4d5-4766-a8c6-7d75a5d93ec5"",
-                    ""path"": ""<Gamepad>/leftStick"",
+                    ""id"": ""a3e1a81a-773b-4afd-960a-717ccc4e4341"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";GrandmaControlls"",
                     ""action"": ""Movement"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": false
+                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -222,7 +222,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""f46217b5-88db-43c5-a20d-83c53f6ba05c"",
                     ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
+                    ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": ""GrandmaControlls"",
                     ""action"": ""Rally"",
@@ -233,7 +233,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""d75d3092-0186-4052-bd2e-c92782642779"",
                     ""path"": ""<Gamepad>/buttonSouth"",
-                    ""interactions"": """",
+                    ""interactions"": ""Hold"",
                     ""processors"": """",
                     ""groups"": ""GrandmaControlls"",
                     ""action"": ""Rally"",
@@ -243,7 +243,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""693847d3-f12e-4480-8164-58eedcef6702"",
-                    ""path"": ""<Keyboard>/j"",
+                    ""path"": ""<Keyboard>/v"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";GrandmaControlls"",
@@ -254,7 +254,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""19908910-16d5-4ff3-968e-35354c52ac58"",
-                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""path"": ""<Gamepad>/buttonWest"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";GrandmaControlls"",
@@ -284,17 +284,17 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         }
     ]
 }");
-        // GrandmaActions
-        m_GrandmaActions = asset.FindActionMap("GrandmaActions", throwIfNotFound: true);
-        m_GrandmaActions_Movement = m_GrandmaActions.FindAction("Movement", throwIfNotFound: true);
-        m_GrandmaActions_Aiming = m_GrandmaActions.FindAction("Aiming", throwIfNotFound: true);
-        m_GrandmaActions_Rally = m_GrandmaActions.FindAction("Rally", throwIfNotFound: true);
-        m_GrandmaActions_Throwing = m_GrandmaActions.FindAction("Throwing", throwIfNotFound: true);
+        // Grandma
+        m_Grandma = asset.FindActionMap("Grandma", throwIfNotFound: true);
+        m_Grandma_Movement = m_Grandma.FindAction("Movement", throwIfNotFound: true);
+        m_Grandma_Aiming = m_Grandma.FindAction("Aiming", throwIfNotFound: true);
+        m_Grandma_Rally = m_Grandma.FindAction("Rally", throwIfNotFound: true);
+        m_Grandma_Throwing = m_Grandma.FindAction("Throwing", throwIfNotFound: true);
     }
 
     ~@Grandma_Act()
     {
-        UnityEngine.Debug.Assert(!m_GrandmaActions.enabled, "This will cause a leak and performance issues, Grandma_Act.GrandmaActions.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Grandma.enabled, "This will cause a leak and performance issues, Grandma_Act.Grandma.Disable() has not been called.");
     }
 
     /// <summary>
@@ -367,44 +367,44 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // GrandmaActions
-    private readonly InputActionMap m_GrandmaActions;
-    private List<IGrandmaActionsActions> m_GrandmaActionsActionsCallbackInterfaces = new List<IGrandmaActionsActions>();
-    private readonly InputAction m_GrandmaActions_Movement;
-    private readonly InputAction m_GrandmaActions_Aiming;
-    private readonly InputAction m_GrandmaActions_Rally;
-    private readonly InputAction m_GrandmaActions_Throwing;
+    // Grandma
+    private readonly InputActionMap m_Grandma;
+    private List<IGrandmaActions> m_GrandmaActionsCallbackInterfaces = new List<IGrandmaActions>();
+    private readonly InputAction m_Grandma_Movement;
+    private readonly InputAction m_Grandma_Aiming;
+    private readonly InputAction m_Grandma_Rally;
+    private readonly InputAction m_Grandma_Throwing;
     /// <summary>
-    /// Provides access to input actions defined in input action map "GrandmaActions".
+    /// Provides access to input actions defined in input action map "Grandma".
     /// </summary>
-    public struct GrandmaActionsActions
+    public struct GrandmaActions
     {
         private @Grandma_Act m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public GrandmaActionsActions(@Grandma_Act wrapper) { m_Wrapper = wrapper; }
+        public GrandmaActions(@Grandma_Act wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "GrandmaActions/Movement".
+        /// Provides access to the underlying input action "Grandma/Movement".
         /// </summary>
-        public InputAction @Movement => m_Wrapper.m_GrandmaActions_Movement;
+        public InputAction @Movement => m_Wrapper.m_Grandma_Movement;
         /// <summary>
-        /// Provides access to the underlying input action "GrandmaActions/Aiming".
+        /// Provides access to the underlying input action "Grandma/Aiming".
         /// </summary>
-        public InputAction @Aiming => m_Wrapper.m_GrandmaActions_Aiming;
+        public InputAction @Aiming => m_Wrapper.m_Grandma_Aiming;
         /// <summary>
-        /// Provides access to the underlying input action "GrandmaActions/Rally".
+        /// Provides access to the underlying input action "Grandma/Rally".
         /// </summary>
-        public InputAction @Rally => m_Wrapper.m_GrandmaActions_Rally;
+        public InputAction @Rally => m_Wrapper.m_Grandma_Rally;
         /// <summary>
-        /// Provides access to the underlying input action "GrandmaActions/Throwing".
+        /// Provides access to the underlying input action "Grandma/Throwing".
         /// </summary>
-        public InputAction @Throwing => m_Wrapper.m_GrandmaActions_Throwing;
+        public InputAction @Throwing => m_Wrapper.m_Grandma_Throwing;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_GrandmaActions; }
+        public InputActionMap Get() { return m_Wrapper.m_Grandma; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -412,9 +412,9 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="GrandmaActionsActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="GrandmaActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(GrandmaActionsActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(GrandmaActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -422,11 +422,11 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="GrandmaActionsActions" />
-        public void AddCallbacks(IGrandmaActionsActions instance)
+        /// <seealso cref="GrandmaActions" />
+        public void AddCallbacks(IGrandmaActions instance)
         {
-            if (instance == null || m_Wrapper.m_GrandmaActionsActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_GrandmaActionsActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_GrandmaActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GrandmaActionsCallbackInterfaces.Add(instance);
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
@@ -447,8 +447,8 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="GrandmaActionsActions" />
-        private void UnregisterCallbacks(IGrandmaActionsActions instance)
+        /// <seealso cref="GrandmaActions" />
+        private void UnregisterCallbacks(IGrandmaActions instance)
         {
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
@@ -465,12 +465,12 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="GrandmaActionsActions.UnregisterCallbacks(IGrandmaActionsActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="GrandmaActions.UnregisterCallbacks(IGrandmaActions)" />.
         /// </summary>
-        /// <seealso cref="GrandmaActionsActions.UnregisterCallbacks(IGrandmaActionsActions)" />
-        public void RemoveCallbacks(IGrandmaActionsActions instance)
+        /// <seealso cref="GrandmaActions.UnregisterCallbacks(IGrandmaActions)" />
+        public void RemoveCallbacks(IGrandmaActions instance)
         {
-            if (m_Wrapper.m_GrandmaActionsActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_GrandmaActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -480,21 +480,21 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="GrandmaActionsActions.AddCallbacks(IGrandmaActionsActions)" />
-        /// <seealso cref="GrandmaActionsActions.RemoveCallbacks(IGrandmaActionsActions)" />
-        /// <seealso cref="GrandmaActionsActions.UnregisterCallbacks(IGrandmaActionsActions)" />
-        public void SetCallbacks(IGrandmaActionsActions instance)
+        /// <seealso cref="GrandmaActions.AddCallbacks(IGrandmaActions)" />
+        /// <seealso cref="GrandmaActions.RemoveCallbacks(IGrandmaActions)" />
+        /// <seealso cref="GrandmaActions.UnregisterCallbacks(IGrandmaActions)" />
+        public void SetCallbacks(IGrandmaActions instance)
         {
-            foreach (var item in m_Wrapper.m_GrandmaActionsActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_GrandmaActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_GrandmaActionsActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_GrandmaActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="GrandmaActionsActions" /> instance referencing this action map.
+    /// Provides a new <see cref="GrandmaActions" /> instance referencing this action map.
     /// </summary>
-    public GrandmaActionsActions @GrandmaActions => new GrandmaActionsActions(this);
+    public GrandmaActions @Grandma => new GrandmaActions(this);
     private int m_GrandmaControllsSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -509,11 +509,11 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         }
     }
     /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "GrandmaActions" which allows adding and removing callbacks.
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Grandma" which allows adding and removing callbacks.
     /// </summary>
-    /// <seealso cref="GrandmaActionsActions.AddCallbacks(IGrandmaActionsActions)" />
-    /// <seealso cref="GrandmaActionsActions.RemoveCallbacks(IGrandmaActionsActions)" />
-    public interface IGrandmaActionsActions
+    /// <seealso cref="GrandmaActions.AddCallbacks(IGrandmaActions)" />
+    /// <seealso cref="GrandmaActions.RemoveCallbacks(IGrandmaActions)" />
+    public interface IGrandmaActions
     {
         /// <summary>
         /// Method invoked when associated input action "Movement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.

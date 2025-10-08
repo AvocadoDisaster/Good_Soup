@@ -3,7 +3,7 @@
     "name": "Grandma_Act",
     "maps": [
         {
-            "name": "GrandmaActions",
+            "name": "Grandma",
             "id": "728a1b8f-7bb6-4538-95c6-0cee90739fa5",
             "actions": [
                 {
@@ -17,9 +17,9 @@
                 },
                 {
                     "name": "Aiming",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "e540f874-fd4c-4183-b813-a4249554d781",
-                    "expectedControlType": "Delta",
+                    "expectedControlType": "Vector3",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -45,8 +45,19 @@
             ],
             "bindings": [
                 {
+                    "name": "",
+                    "id": "4f78fbaa-f4d5-4766-a8c6-7d75a5d93ec5",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";GrandmaControlls",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "2D Vector",
-                    "id": "c78e7407-034f-4fd0-ba76-0c2348cb5e44",
+                    "id": "9abb5099-48bc-44f4-9ff1-572663df1018",
                     "path": "2DVector",
                     "interactions": "",
                     "processors": "",
@@ -57,58 +68,47 @@
                 },
                 {
                     "name": "up",
-                    "id": "fa46aa88-cc8d-4057-b3e2-b1297ab9c834",
+                    "id": "41f40e3a-7a2c-489e-8835-c28b766a2b08",
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "GrandmaControlls",
+                    "groups": ";GrandmaControlls",
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "down",
-                    "id": "a7ea8b21-18bf-47b0-8399-f054d52b0338",
+                    "id": "2b86b6bf-4bcc-450c-b18a-c68ab6b185d5",
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "GrandmaControlls",
+                    "groups": ";GrandmaControlls",
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "left",
-                    "id": "7136af5d-6f61-4959-9159-b57444a4cad6",
-                    "path": "<Keyboard>/d",
+                    "id": "4d53d53c-3a4c-4419-9f32-0ab61dc8eb19",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "GrandmaControlls",
+                    "groups": ";GrandmaControlls",
                     "action": "Movement",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "right",
-                    "id": "96ffffcf-de2a-4212-8581-f46547a405e6",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "GrandmaControlls",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "4f78fbaa-f4d5-4766-a8c6-7d75a5d93ec5",
-                    "path": "<Gamepad>/leftStick",
+                    "id": "a3e1a81a-773b-4afd-960a-717ccc4e4341",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": ";GrandmaControlls",
                     "action": "Movement",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
@@ -136,7 +136,7 @@
                     "name": "",
                     "id": "f46217b5-88db-43c5-a20d-83c53f6ba05c",
                     "path": "<Keyboard>/space",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "processors": "",
                     "groups": "GrandmaControlls",
                     "action": "Rally",
@@ -147,7 +147,7 @@
                     "name": "",
                     "id": "d75d3092-0186-4052-bd2e-c92782642779",
                     "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "processors": "",
                     "groups": "GrandmaControlls",
                     "action": "Rally",
@@ -157,7 +157,7 @@
                 {
                     "name": "",
                     "id": "693847d3-f12e-4480-8164-58eedcef6702",
-                    "path": "<Keyboard>/j",
+                    "path": "<Keyboard>/v",
                     "interactions": "",
                     "processors": "",
                     "groups": ";GrandmaControlls",
@@ -168,7 +168,7 @@
                 {
                     "name": "",
                     "id": "19908910-16d5-4ff3-968e-35354c52ac58",
-                    "path": "<Gamepad>/buttonEast",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": ";GrandmaControlls",
