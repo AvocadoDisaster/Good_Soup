@@ -31,7 +31,7 @@ public class Idle : EmberState
     {
         base.FrameUpdate();
         _direction = (_targetPos - ember.transform.position).normalized;
-        ember.MoveEmber(_direction * ember.movementSpeed * Time.deltaTime *2);
+        ember.MoveEmber(_direction * ember.movementSpeed * Time.deltaTime);
 
         if((ember.transform.position - _targetPos).sqrMagnitude < 0.01f)
         {
@@ -47,6 +47,13 @@ public class Idle : EmberState
         {
             ember.EmberStateMachine.ChangeState(ember.FollowingState);
         }
+
+        if (ember.isRallied)
+        {
+            ember.EmberStateMachine.ChangeState(ember.FollowingState);
+        }
+       
+
     }
 
     public override void PhysicsUpdate()

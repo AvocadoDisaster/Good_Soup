@@ -9,11 +9,11 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
     [field: SerializeField] public float MaxHealth { get; set; } = 100f;
     public float currentHealth { get; set; }
     public NavMeshAgent agent { get; set; }
-    
+
 
     #region State Machine Variables
     public EmberStateMachine EmberStateMachine { get; set; }
-    public Thrown ThrownState { get; set; }
+    
     public Idle IdleState { get; set; }
     public Following FollowingState { get; set; }
     public Carry CarryState { get; set; }
@@ -21,12 +21,15 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
     #region movement/directionfacing
     public bool IsFacingRight { get; set; } = true;
     public bool IsFacingbakcRight { get; set; } = false;
+
+
     #endregion
 
     #region Carrytriggers
-    public bool detectsIngredient { get ; set; }
-    public bool isSlapped { get; set; }
-     
+    public bool detectsIngredient { get; set; }
+
+    public bool isTransportingIngredient { get; set; }
+
     #endregion
 
     #region IdleVariables
@@ -34,10 +37,14 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
     public float movementSpeed = 5f;
     #endregion
 
-    #region Thrown
+    #region Thrown triggers
     public bool isThrown { get; set; }
     #endregion
 
+    #region Following trigers
+    public bool isSlapped { get; set; }
+    public bool isRallied { get; set; }
+    #endregion
     #endregion
 
 
@@ -46,7 +53,7 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
         EmberStateMachine = new EmberStateMachine();
 
         IdleState = new Idle(this, EmberStateMachine);
-        ThrownState = new Thrown(this, EmberStateMachine);
+        
         FollowingState = new Following(this, EmberStateMachine);
         CarryState = new Carry(this, EmberStateMachine);
     }
@@ -64,7 +71,7 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
 
     private void FixedUpdate()
     {
-       EmberStateMachine.CurrentEmberState.PhysicsUpdate();
+        EmberStateMachine.CurrentEmberState.PhysicsUpdate();
     }
 
     #region Health/Die
@@ -132,6 +139,17 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
 
         }
     }
+
+        public void SetIsSlappedStatus(bool IsSlapped)
+        {
+            isSlapped = IsSlapped;
+        }
+    public void SetIsRallied(bool IsRallied)
+    {
+        isRallied = IsRallied;
+    }
+
+
     #endregion
 
     #region CarryTriggers
@@ -139,18 +157,20 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
     public void SetIngredientDetectionStatus(bool DetectsIngredeint)
     {
         detectsIngredient = DetectsIngredeint;
+
     }
 
-    public void SetIsSlappedStatus(bool IsSlapped)
+    public void SetIsTransportingIngredient(bool IstransportingIngredient)
     {
-        isSlapped = IsSlapped;
+        isTransportingIngredient = IstransportingIngredient;
     }
+
     #endregion
 
     #region Throwing
-    public void SetIsThrownStatus(bool IsThrown)
+    public void SetIsThrown(bool IsThrown)
     {
-        
+        isThrown = IsThrown;
     }
     #endregion
 
@@ -163,7 +183,7 @@ public class EmberBase : MonoBehaviour, IDamageable, IMovable, ItriggerCheckable
         
     }
 
-    
+   
 
     public enum AnimationTriggerType
     {

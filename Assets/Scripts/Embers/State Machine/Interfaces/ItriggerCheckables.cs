@@ -8,12 +8,20 @@ public interface ItriggerCheckables
 
     bool isThrown { get; set; }
 
+    bool isTransportingIngredient { get; set; }
 
+    bool isRallied { get; set; }
 
     void SetIngredientDetectionStatus(bool DetectsIngredeint);
 
     void SetIsSlappedStatus(bool IsSlapped);
 
-    void SetIsThrownStatus(bool IsThrown);
+    void SetIsRallied(bool IsRallied);
+
+    void SetIsThrown(bool IsThrown);
+
+    
+
+    void SetIsTransportingIngredient(bool istransportingIngredient);
 
 }

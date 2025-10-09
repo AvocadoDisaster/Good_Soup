@@ -1,6 +1,8 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor.Rendering.LookDev;
 using UnityEngine;
@@ -18,7 +20,7 @@ public class projectile : MonoBehaviour
     [SerializeField] private Transform _FirePoint;
     [SerializeField] private Transform grandampos;
     private float _Height;
-    private Camera _cam;
+    [SerializeField]private Camera _cam;
     [SerializeField] GameObject Ember;
     [SerializeField] Transform embertransform;
     public GameObject RallyCaller;
@@ -26,25 +28,33 @@ public class projectile : MonoBehaviour
 
     [Header("Pickup Settings")]
     [SerializeField] Transform holdArea;
-    private GameObject heldObj;
-    private Rigidbody heldObjRB;
+    
+    [SerializeField]private Rigidbody EmberRB;
 
     [Header("Physics Parameters")]
     [SerializeField] private float pickupRange;
     [SerializeField] private float picupForce = 150.0f;
 
-    [SerializeField] private Grandma_Act grandmaact;
-    private InputAction _aiming;
-    private InputAction _throwing;
+
+
+    public static bool Isthrown {  get;  set; }
+    
+
+    //[SerializeField] private Grandma_Act grandmaact;
+    // private InputAction _aiming;
+    //private InputAction _throwing;
     private void Start()
     {
         _cam = Camera.main;
     }
-    /*
+    
     private void Awake()
     {
-        grandmaact = new Grandma_Act();
+        //grandmaact = new Grandma_Act();
+       
+        
     }
+    /*
     private void OnEnable()
     {
         _aiming = grandmaact.Grandma.Aiming;
@@ -91,7 +101,7 @@ public class projectile : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))//_throwing.WasReleasedThisFrame()
             {
-                if (heldObj == null)
+                if (Ember == null)
                 {
                     RaycastHit hitting;
                     if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hitting) & Input.GetMouseButtonUp(0))
@@ -100,6 +110,7 @@ public class projectile : MonoBehaviour
                         PickupObject(hitting.transform.gameObject);
                         GetComponent<RoughEmberPathing>().enabled = false;
                         print("ember ispicked up");
+
                     }
                     else
                     {
@@ -109,19 +120,22 @@ public class projectile : MonoBehaviour
                         StartCoroutine(Coroutine_Movement(groundDirection.normalized, v0, angle, time));
                         DropObject();
                         print("Ember is thrown");
+                        Isthrown = true;
                     }
                 }
-                if (heldObj != null)
+                if (Ember != null)
                 {
                     MOveing();
                 }
 
             }
+            Isthrown = false;
 
 
 
 
         }
+
     }
 
     private void DrawPath(Vector3 direction, float v0, float angle, float time, float step)
@@ -197,13 +211,13 @@ public class projectile : MonoBehaviour
     {
         if (pickObj.GetComponent<Rigidbody>())
         {
-            heldObjRB = pickObj.GetComponent<Rigidbody>();
-            heldObjRB.useGravity = false;
-            heldObjRB.linearDamping = 10;
-            heldObjRB.constraints = RigidbodyConstraints.FreezeRotation;
+            EmberRB = pickObj.GetComponent<Rigidbody>();
+            EmberRB.useGravity = false;
+            EmberRB.linearDamping = 10;
+            EmberRB.constraints = RigidbodyConstraints.FreezeRotation;
 
-            heldObjRB.transform.parent = holdArea;
-            heldObj = pickObj;
+            EmberRB.transform.parent = holdArea;
+            Ember = pickObj;
         }
     }
 
@@ -211,21 +225,21 @@ public class projectile : MonoBehaviour
     {
 
 
-        heldObjRB.useGravity = true;
-        heldObjRB.linearDamping = 1;
-        heldObjRB.constraints = RigidbodyConstraints.None;
+        EmberRB.useGravity = true;
+        EmberRB.linearDamping = 1;
+        EmberRB.constraints = RigidbodyConstraints.None;
 
-        heldObj.transform.parent = null;
-        heldObj = null;
+        Ember.transform.parent = null;
+        Ember = null;
 
     }
 
     void MOveing()
     {
-        if (Vector3.Distance(heldObj.transform.position, holdArea.position) > 0.1f)
+        if (Vector3.Distance(Ember.transform.position, holdArea.position) > 0.1f)
         {
-            Vector3 moveDirectioning = (holdArea.position - heldObj.transform.position);
-            heldObjRB.AddForce(moveDirectioning * picupForce);
+            Vector3 moveDirectioning = (holdArea.position - Ember.transform.position);
+            EmberRB.AddForce(moveDirectioning * picupForce);
         }
     }
 

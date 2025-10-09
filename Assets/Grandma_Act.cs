@@ -93,7 +93,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
             ""id"": ""853adfa7-fbb3-4a61-92cc-4f4f8217e0bd"",
             ""actions"": [
                 {
-                    ""name"": ""Move"",
+                    ""name"": ""Movement"",
                     ""type"": ""Value"",
                     ""id"": ""65c19e7e-d298-4799-b6e3-6b7f23fc7bdb"",
                     ""expectedControlType"": ""Vector2"",
@@ -137,7 +137,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Grandma"",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -148,7 +148,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -159,7 +159,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Grandma"",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -170,7 +170,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Grandma"",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -181,7 +181,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Grandma"",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -192,7 +192,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Grandma"",
-                    ""action"": ""Move"",
+                    ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -257,7 +257,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Grandma"",
                     ""action"": ""Rally"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -291,7 +291,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
 }");
         // Grandma
         m_Grandma = asset.FindActionMap("Grandma", throwIfNotFound: true);
-        m_Grandma_Move = m_Grandma.FindAction("Move", throwIfNotFound: true);
+        m_Grandma_Movement = m_Grandma.FindAction("Movement", throwIfNotFound: true);
         m_Grandma_Aiming = m_Grandma.FindAction("Aiming", throwIfNotFound: true);
         m_Grandma_Throwing = m_Grandma.FindAction("Throwing", throwIfNotFound: true);
         m_Grandma_Rally = m_Grandma.FindAction("Rally", throwIfNotFound: true);
@@ -375,7 +375,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
     // Grandma
     private readonly InputActionMap m_Grandma;
     private List<IGrandmaActions> m_GrandmaActionsCallbackInterfaces = new List<IGrandmaActions>();
-    private readonly InputAction m_Grandma_Move;
+    private readonly InputAction m_Grandma_Movement;
     private readonly InputAction m_Grandma_Aiming;
     private readonly InputAction m_Grandma_Throwing;
     private readonly InputAction m_Grandma_Rally;
@@ -391,9 +391,9 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// </summary>
         public GrandmaActions(@Grandma_Act wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Grandma/Move".
+        /// Provides access to the underlying input action "Grandma/Movement".
         /// </summary>
-        public InputAction @Move => m_Wrapper.m_Grandma_Move;
+        public InputAction @Movement => m_Wrapper.m_Grandma_Movement;
         /// <summary>
         /// Provides access to the underlying input action "Grandma/Aiming".
         /// </summary>
@@ -432,9 +432,9 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_GrandmaActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_GrandmaActionsCallbackInterfaces.Add(instance);
-            @Move.started += instance.OnMove;
-            @Move.performed += instance.OnMove;
-            @Move.canceled += instance.OnMove;
+            @Movement.started += instance.OnMovement;
+            @Movement.performed += instance.OnMovement;
+            @Movement.canceled += instance.OnMovement;
             @Aiming.started += instance.OnAiming;
             @Aiming.performed += instance.OnAiming;
             @Aiming.canceled += instance.OnAiming;
@@ -455,9 +455,9 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
         /// <seealso cref="GrandmaActions" />
         private void UnregisterCallbacks(IGrandmaActions instance)
         {
-            @Move.started -= instance.OnMove;
-            @Move.performed -= instance.OnMove;
-            @Move.canceled -= instance.OnMove;
+            @Movement.started -= instance.OnMovement;
+            @Movement.performed -= instance.OnMovement;
+            @Movement.canceled -= instance.OnMovement;
             @Aiming.started -= instance.OnAiming;
             @Aiming.performed -= instance.OnAiming;
             @Aiming.canceled -= instance.OnAiming;
@@ -521,12 +521,12 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
     public interface IGrandmaActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Movement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMove(InputAction.CallbackContext context);
+        void OnMovement(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Aiming" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

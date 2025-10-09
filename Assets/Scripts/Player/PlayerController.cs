@@ -1,5 +1,3 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
 
 using System;
 using Unity.VisualScripting;
@@ -19,7 +17,7 @@ public class GrandmaController : MonoBehaviour
     private InputAction _movement;
 
 
-    private InputAction _rally;
+   
     //Note: also name things better  and the controls scheme
     #endregion
 
@@ -42,20 +40,14 @@ public class GrandmaController : MonoBehaviour
 
         playerbody = this.GetComponent<Rigidbody>();
         grandmaact = new Grandma_Act();
+        _movement = grandmaact.Grandma.Movement;
 
     }
 
     private void OnEnable()
     {
-        _movement = grandmaact.Grandma.Movement;
+        
         _movement.Enable();
-
-
-
-        grandmaact.Grandma.Rally.started += DoRally;
-        grandmaact.Grandma.Rally.Enable();
-
-
 
     }
 
@@ -63,8 +55,6 @@ public class GrandmaController : MonoBehaviour
     private void OnDisable()
     {
         _movement.Disable();
-
-        grandmaact.Grandma.Rally.Disable();
 
     }
 
