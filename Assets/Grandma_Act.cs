@@ -105,7 +105,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""name"": ""Aiming"",
                     ""type"": ""PassThrough"",
                     ""id"": ""e540f874-fd4c-4183-b813-a4249554d781"",
-                    ""expectedControlType"": ""Vector3"",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -222,7 +222,7 @@ public partial class @Grandma_Act: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""f46217b5-88db-43c5-a20d-83c53f6ba05c"",
                     ""path"": ""<Keyboard>/space"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""GrandmaControlls"",
                     ""action"": ""Rally"",

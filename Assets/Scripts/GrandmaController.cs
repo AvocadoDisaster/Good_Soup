@@ -1,145 +1,49 @@
 using System;
 using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class GrandmaController : MonoBehaviour
 {
-    #region Sprite
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    #endregion
-    #region Input Action Asset
-    [SerializeField] private Grandma_Act grandmaact;
-    //The different actions
-    private InputAction _movement;
-   
-   
-    private InputAction _rally;
-    //Note: also name things better  and the controls scheme
-    #endregion
+    [Header("Movement")]
+    public float moveSpeed = 8.0f;
+    public float jumpForce = 15.0f;
 
-    #region Movment fields
-    private Rigidbody playerbody;
-    [SerializeField]
-    private float movementForce;
-    [SerializeField]
-    private float maxSpeed = 20f;
-    private Vector3 forceDirection = Vector3.zero;
-    #endregion
+    [Header("Dependencies")]
+    public Rigidbody rb;
+    public Transform spriteHolder;
+    public LayerMask groundLayer;
 
-    #region Camera
-    [SerializeField] private Camera playerCam;
-
-    #endregion
-
-    void Awake()
-    {
-
-        playerbody = this.GetComponent<Rigidbody>();
-        grandmaact = new Grandma_Act();
-
-    }
-
-    private void OnEnable()
-    {
-        _movement = grandmaact.Grandma.Movement;
-        _movement.Enable();
-
-       
-
-        grandmaact.Grandma.Rally.started += DoRally;
-        grandmaact.Grandma.Rally.Enable();
-
-
-        
-    }
-
-
-    private void OnDisable()
-    {
-        _movement.Disable();
-        
-        grandmaact.Grandma.Rally.Disable();
-        
-    }
-
-
-    private void FixedUpdate()
-    {
-        forceDirection += _movement.ReadValue<Vector2>().x * GetCameraRight(playerCam) * movementForce;
-        forceDirection += _movement.ReadValue<Vector2>().y * GetCameraForward(playerCam) * movementForce;
-
-        playerbody.AddForce(forceDirection, ForceMode.Impulse);
-        forceDirection = Vector3.zero;
-
-        if (playerbody.linearVelocity.y < 0f)
-        {
-            playerbody.linearVelocity += Vector3.down * Physics.gravity.y * Time.fixedDeltaTime;
-        }
-        Vector3 horizontalVelocity = playerbody.linearVelocity;
-        horizontalVelocity.y = 0;
-        if (horizontalVelocity.sqrMagnitude > maxSpeed * maxSpeed)
-        {
-            playerbody.linearVelocity = horizontalVelocity.normalized * maxSpeed + Vector3.up * playerbody.linearVelocity.y;
-        }
-        flipping();
-        
-    }
+    private Vector3 movementInput;
     
-    private void DoRally(InputAction.CallbackContext context)
+
+    [SerializeField] SpriteRenderer spriteRenderer;
+
+    void Update()
     {
-        print("embers are being rallied");
+        // Get input from keyboard or controller
+        movementInput.x = Input.GetAxis("Horizontal");
+        movementInput.z = Input.GetAxis("Vertical");
+
+        
     }
-    private void flipping()
+
+    void FixedUpdate()
     {
-        print("aiming embers");
-        Vector3 direction = playerbody.linearVelocity;
-        direction.y = 0;
-        float lol = direction.x;
-        if (_movement.ReadValue<Vector2>().sqrMagnitude > 0.1f && direction.sqrMagnitude > 0.1f)
+        // Apply movement forces to the Rigidbody
+        Vector3 moveDirection = new Vector3(movementInput.x, 0, movementInput.z).normalized;
+        rb.linearVelocity = new Vector3(moveDirection.x * moveSpeed, rb.linearVelocity.y, moveDirection.z * moveSpeed);
+        if(rb.linearVelocity.x < 0.1f)
         {
-            
-
-            if (_movement.ReadValue<Vector2>().x > 0.1f)
-            {
-                spriteRenderer.flipX = false;
-            }
-            else if (_movement.ReadValue<Vector2>().x < -0.1f)
-            {
-                spriteRenderer.flipX = true;
-            }
-            else
-            {
-                //idle sprite
-            }
-
+            spriteRenderer.flipX = true;
         }
-        else
+        if (rb.linearVelocity.x > -0.1f)
         {
-            playerbody.angularVelocity = Vector3.zero;
+            spriteRenderer.flipX = false;
         }
-
     }
 
-
-    private Vector3 GetCameraRight(Camera playerCam)
-    {
-        Vector3 Right = playerCam.transform.right;
-        Right.y = 0;
-        return Right.normalized;
-    }
-
-    private Vector3 GetCameraForward(Camera playerCam)
-    {
-        Vector3 forward = playerCam.transform.forward;
-        forward.y = 0;
-        return forward.normalized;
-    }
-
-
-
-
-
+   
 }
