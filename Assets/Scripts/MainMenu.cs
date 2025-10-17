@@ -7,6 +7,7 @@ public class MainMenu : MonoBehaviour
     public GameObject mapMenuCanvas;
     public GameObject optionsMenuCanvas;
     public GameObject mainMenuCanvas;
+    public GameObject creditsMenuCanvas;
 
     public void PlayGame()
     {
@@ -22,7 +23,8 @@ public class MainMenu : MonoBehaviour
 
     public void OpenCredits()
     {
-               SceneManager.LoadScene("Credits");
+        creditsMenuCanvas.SetActive(true);
+        mainMenuCanvas.SetActive(false);    
     }
 
     public void QuitGame()
