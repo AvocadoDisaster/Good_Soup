@@ -18,7 +18,7 @@ The OFL allows the licensed fonts to be used, studied, modified and redistribute
 DEFINITIONS
 "Font Software" refers to the set of files released by the Copyright Holder(s) under this license and clearly marked as such. This may include source files, build scripts and documentation.
 
-"Reserved Font Name" refers to any names specified as such after the copyright statement(s).
+"Reserved Font Name" refers to any names specified as such after the copyright _statement(s).
 
 "Original Version" refers to the collection of Font Software components as distributed by the Copyright Holder(s).
 
