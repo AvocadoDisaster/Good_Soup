@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -7,6 +6,7 @@ public class MainMenu : MonoBehaviour
     public GameObject mapMenuCanvas;
     public GameObject optionsMenuCanvas;
     public GameObject mainMenuCanvas;
+    public GameObject creditMenuCanvas;
 
     public void PlayGame()
     {
@@ -22,7 +22,8 @@ public class MainMenu : MonoBehaviour
 
     public void OpenCredits()
     {
-               SceneManager.LoadScene("Credits");
+        creditMenuCanvas.SetActive(true);
+        mainMenuCanvas.SetActive(false);
     }
 
     public void QuitGame()

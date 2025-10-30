@@ -8,6 +8,7 @@ public class OptionsMenu : MonoBehaviour
     public Slider volumeSlider;
     public TextMeshProUGUI volumeLabel;
     public GameObject mainMenuCanvas;
+    public GameObject controlsmenuCanvas;
 
     public void Start()
     {
@@ -32,6 +33,11 @@ public class OptionsMenu : MonoBehaviour
     {
         int percentage = Mathf.RoundToInt(value * 100);
         volumeLabel.text = $"Volume: {percentage}%";
+    }
+    public void OpenControls()
+    {
+        controlsmenuCanvas.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     public void BackToMainMenu()
