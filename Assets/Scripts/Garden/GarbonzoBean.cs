@@ -12,7 +12,7 @@ public class GarbonzoBean : MonoBehaviour
     private bool isBeingCarried = false;
     private bool hasCarrier = false; // Lock to prevent multiple embers
     private Rigidbody rb;
-    private Vector3 spawnPosition; // Remember where this charcoal spawned
+    private Vector3 spawnPosition; // Remember where this Garbonzo spawned
 
     private void Awake()
     {
@@ -49,7 +49,7 @@ public class GarbonzoBean : MonoBehaviour
             EmberState emberState = EmberStateManager.Instance.GetEmberState(carrierEmber.gameObject);
             if (emberState != EmberState.ON_GARBANZO_BEANS)
             {
-                Debug.Log($"<color=yellow>Ember state changed to {emberState}, dropping charcoal!</color>");
+                Debug.Log($"<color=yellow>Ember state changed to {emberState}, dropping Garbonzo!</color>");
                 Drop();
                 return;
             }

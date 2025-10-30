@@ -41,6 +41,13 @@ public class Charcoal : MonoBehaviour
         }
         else if (carrierEmber != null)
         {
+            EmberState emberState = EmberStateManager.Instance.GetEmberState(carrierEmber.gameObject);
+            if (emberState != EmberState.ON_CHARCOAL)
+            {
+                Debug.Log($"<color=yellow>Ember state changed to {emberState}, dropping charcoal!</color>");
+                Drop();
+                return;
+            }
             UpdateCarrying();
         }
     }
@@ -187,6 +194,8 @@ public class Charcoal : MonoBehaviour
         }
 
         Debug.Log($"<color=yellow>Charcoal dropped</color>");
+        this.transform.position = new Vector3(transform.position.x, transform.position.y -2f, transform.position.z);
+        
     }
 
     private void DeliverToPot()
