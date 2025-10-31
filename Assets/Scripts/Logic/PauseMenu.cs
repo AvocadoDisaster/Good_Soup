@@ -6,6 +6,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Canvas References")]
     public GameObject pauseMenuCanvas;
     public GameObject optionsMenuCanvas;
+    public CountdownTimer timer;
 
     private bool isPaused = false;
 
@@ -29,6 +30,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuCanvas.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
+        timer.ResumeTimer();
     }
 
     public void Pause()
@@ -36,6 +38,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuCanvas.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
+        timer.PauseTimer();
     }
 
     public void Restart()
