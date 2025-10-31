@@ -1158,6 +1158,7 @@ MonoBehaviour:
   volumeSlider: {fileID: 1325270671}
   volumeLabel: {fileID: 927888645}
   mainMenuCanvas: {fileID: 197705256}
+  controlsmenuCanvas: {fileID: 0}
 --- !u!4 &917441948 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5990919390306471992, guid: 9c489f81f66dd3a4a96d255c0297d339, type: 3}
@@ -1262,6 +1263,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1287207229}
+  - component: {fileID: 1287207230}
   - component: {fileID: 1287207228}
   m_Layer: 0
   m_Name: MenuManager
@@ -1284,6 +1286,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
   pauseMenuCanvas: {fileID: 197705256}
   optionsMenuCanvas: {fileID: 769786563}
+  timer: {fileID: 0}
 --- !u!4 &1287207229
 Transform:
   m_ObjectHideFlags: 0
@@ -1299,6 +1302,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1287207230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287207227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64dc2b5ae6b2a5e48b83a78b3fca6c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraSwitcher
+  mainCamera: {fileID: 1853036260}
+  altCamera: {fileID: 0}
+  switchKey: 99
 --- !u!114 &1325270671 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6805071137475554191, guid: 962f2874bbb6eb04a9265a1b947a8f28, type: 3}

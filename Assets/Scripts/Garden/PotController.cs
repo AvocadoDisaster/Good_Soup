@@ -34,7 +34,7 @@ public class PotController : MonoBehaviour
     [Header("Events")]
     public UnityEvent OnSoupCompleted;
 
-    private HashSet<string> selectedIngredients = new HashSet<string>();
+    public HashSet<string> selectedIngredients = new HashSet<string>();
     private HashSet<string> collectedIngredients = new HashSet<string>();
     private HashSet<string> wrongIngredients = new HashSet<string>();
 
