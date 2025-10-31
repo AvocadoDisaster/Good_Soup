@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class Projectile : MonoBehaviour
 {
@@ -8,11 +9,20 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float _Step = 0.1f;
     [SerializeField] private Transform Spoon;
     public bool IsThrown;
+    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Camera _Camera;
     [SerializeField] private InParty InParty;
-
+    [SerializeField] private int trajectoryPoints = 30;
+    [SerializeField] private float trajectoryTimeStep = 0.1f;
+    [SerializeField] private GameObject landingIndicator; // Visual marker for landing spot
+    [SerializeField] private float indicatorHoverHeight = 0.2f;
     private GameObject currentHeldEmber = null;
     private bool isHoldingJ = false;
+    private Vector3 predictedLandingPoint;
+    private bool validLandingSpot = false;
+    [SerializeField] private float groundCheckRadius = 1f;
+    [SerializeField] private float maxGroundSearchDistance = 10f;
+    [SerializeField] private float landingSnapSpeed = 20f;
 
     private void Start()
     {
@@ -21,6 +31,35 @@ public class Projectile : MonoBehaviour
         {
             _Line.enabled = false;
         }
+        if (landingIndicator != null)
+        {
+            landingIndicator.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("Landing Indicator not assigned! Creating default sphere...");
+            CreateDefaultLandingIndicator();
+        }
+    }
+    private void CreateDefaultLandingIndicator()
+    {
+        // Create a simple sphere as landing indicator
+        landingIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        landingIndicator.name = "LandingIndicator";
+        landingIndicator.transform.localScale = Vector3.one * 0.5f;
+
+        // Remove collider
+        Destroy(landingIndicator.GetComponent<Collider>());
+
+        // Make it glow
+        Renderer rend = landingIndicator.GetComponent<Renderer>();
+        rend.material = new Material(Shader.Find("Standard"));
+        rend.material.SetColor("_Color", Color.yellow);
+        rend.material.SetFloat("_Metallic", 0.5f);
+        rend.material.EnableKeyword("_EMISSION");
+        rend.material.SetColor("_EmissionColor", Color.yellow);
+
+        landingIndicator.SetActive(true);
     }
 
     private void Update()
@@ -68,9 +107,8 @@ public class Projectile : MonoBehaviour
                     InParty.InCurrentParty.RemoveAt(0); // REMOVE FROM PARTY FIRST
                     Debug.Log($"  - Removed from party. New count: {InParty.InCurrentParty.Count}");
 
-                    //
-                    // Unparent BEFORE holding to prevent staying as child
-                    emberToHold.transform.parent = null;
+                    // FIXED: Unparent BEFORE holding to prevent staying as child
+                    emberToHold.transform.SetParent(null);
 
                     _Holding(emberToHold);
                     currentHeldEmber = emberToHold;
@@ -79,7 +117,7 @@ public class Projectile : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"<color=red> Failed to claim ember {emberToHold.name} - state: {emberCurrentState}</color>");
+                    Debug.LogError($"<color=red>❌ Failed to claim ember {emberToHold.name} - state: {emberCurrentState}</color>");
                 }
             }
         }
@@ -92,7 +130,7 @@ public class Projectile : MonoBehaviour
             Ray ray = _Camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, 1000f)) // Added max distance
+            if (Physics.Raycast(ray, out hit, 500f)) // Added max distance
             {
                 Vector3 direction = hit.point - Spoon.position;
                 Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
@@ -107,6 +145,7 @@ public class Projectile : MonoBehaviour
                     float angle, v0, time;
                     CalculatePathWithH(targetPos, height, out angle, out v0, out time);
                     DrawPath(groundDirection.normalized, v0, angle, time, _Step);
+                    //FindLandingPoint(_Line.positionCount.);
                 }
             }
         }
@@ -155,7 +194,7 @@ public class Projectile : MonoBehaviour
 
                         _Throw();
 
-                        //Don't stop coroutines - allow multiple simultaneous throws
+                        // FIXED: Don't stop coroutines - allow multiple simultaneous throws
                         // Each ember has its own coroutine
                         StartCoroutine(Courotine_Movement(groundDirection.normalized, v0, angle, time, emberBeingThrown));
 
@@ -227,7 +266,7 @@ public class Projectile : MonoBehaviour
     {
         Debug.Log($"<color=magenta>Starting throw coroutine for {ember.name}</color>");
 
-        // Store the starting position so ember doesn't follow player
+        // FIXED: Store the starting position so ember doesn't follow player
         Vector3 throwStartPosition = Spoon.position;
 
         // Disable collider during flight to prevent mid-air collisions
@@ -296,11 +335,63 @@ public class Projectile : MonoBehaviour
             Debug.Log($"  - Set Rigidbody to kinematic");
         }
 
-        // Disable collider during hold to prevent physics issues
+        // FIXED: Disable collider during hold to prevent physics issues
         Collider col = Ember.GetComponent<Collider>();
         if (col != null)
         {
             col.enabled = false;
+        }
+    }
+    private void FindLandingPoint(Vector3[] trajectoryPoints)
+    {
+        // Find the first point that hits the ground
+        for (int i = 1; i < trajectoryPoints.Length; i++)
+        {
+            Vector3 point = trajectoryPoints[i];
+
+            // Raycast down to find ground
+            RaycastHit hit;
+            if (Physics.Raycast(point + Vector3.up * 2f, Vector3.down, out hit, 10f, groundLayer))
+            {
+                predictedLandingPoint = hit.point;
+
+                // Check if it's on NavMesh
+                NavMeshHit navHit;
+                validLandingSpot = NavMesh.SamplePosition(predictedLandingPoint, out navHit, groundCheckRadius, NavMesh.AllAreas);
+
+                if (validLandingSpot)
+                {
+                    predictedLandingPoint = navHit.position;
+                }
+
+                // Show landing indicator
+                if (landingIndicator != null)
+                {
+                    landingIndicator.SetActive(true);
+                    landingIndicator.transform.position = predictedLandingPoint + Vector3.up * indicatorHoverHeight;
+
+                    // Change color based on validity
+                    Renderer rend = landingIndicator.GetComponent<Renderer>();
+                    if (rend != null)
+                    {
+                        Color indicatorColor = validLandingSpot ? Color.green : Color.red;
+                        rend.material.SetColor("_Color", indicatorColor);
+                        if (rend.material.HasProperty("_EmissionColor"))
+                        {
+                            rend.material.SetColor("_EmissionColor", indicatorColor);
+                        }
+                    }
+                }
+
+                return;
+            }
+        }
+
+        // No landing point found
+        validLandingSpot = false;
+        if (landingIndicator != null)
+        {
+            landingIndicator.SetActive(false);
         }
     }
 
@@ -330,7 +421,7 @@ public class Projectile : MonoBehaviour
                 rb.isKinematic = true; // Keep kinematic during scripted flight
                 Debug.Log($"  - Kept Rigidbody kinematic for flight");
             }
-            Spoon.transform.DetachChildren();
+            Spoon.DetachChildren();
         }
     }
 }

@@ -38,7 +38,7 @@ public class GarbanzoBeanSpawner : MonoBehaviour
                 if (bean != null)
                 {
                     activeCount++;
-                    GarbonzoBean beanScript = bean.GetComponent<GarbonzoBean>();
+                    GarbanzoBean beanScript = bean.GetComponent<GarbanzoBean>();
                     if (beanScript != null)
                     {
                         Debug.Log($"  Bean: {bean.name} at {bean.transform.position}");
