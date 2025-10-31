@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 public class CookbookDisplay : MonoBehaviour
 {
-    [System.Serializable]
+    //[System.Serializable]
+
+    public PotController pot;
 
     public class IngredientSlot
     {
@@ -13,14 +15,19 @@ public class CookbookDisplay : MonoBehaviour
 
     public List<IngredientSlot> ingredientSlots = new List<IngredientSlot>();
 
-    private HashSet<string> collectedIngredients = new HashSet<string>();
 
     public void UnlockIngredient(string ingredientName)
     {
-        if (collectedIngredients.Contains(ingredientName))
+        for (int i = 0; i < pot.selectedIngredients.Count; i++)
+        {
+            //pot.selectedIngredients[i];
+            
+        }
+
+        if (pot.selectedIngredients.Contains(ingredientName))
             return;
 
-        collectedIngredients.Add(ingredientName);
+        //pot.selectedIngredients;
 
         foreach (var slot in ingredientSlots)
         {
