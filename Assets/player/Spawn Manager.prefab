@@ -1441,7 +1441,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44b6213069ba08d43a0d66bdfdc14581, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  potController: {fileID: 0}
+  potController: {fileID: 1953412552953853657, guid: 84301c721b62d014dba7d88ac0744823, type: 3}
   ingredients:
   - {fileID: 1072051578930025673}
   - {fileID: 6383538473542635387}
@@ -1454,7 +1454,7 @@ MonoBehaviour:
   - {fileID: 3382651617048472060}
   - {fileID: 601641673736397640}
   - {fileID: 5009904545249314152}
-  - {fileID: 3347075907426743732}
+  - {fileID: 554344235000487810, guid: 4f871869ebf378147a1d18bde767db9c, type: 3}
   spawnPoints:
   - {fileID: 6370424982538283282}
   - {fileID: 5143018252017329497}

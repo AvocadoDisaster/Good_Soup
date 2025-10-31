@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 10037915a9edf7a41a90892a2e7cf412
+guid: d4c52c2f379fe724b8e073893dd0e2fb
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,13 +43,13 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 241, y: 0, z: 243, w: 6}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -95,13 +95,57 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Garbanzo Bean_0
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 456
+        width: 749
+        height: 762
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 41f6db38812e151468ba04f5da059eb3
+      internalID: 1434557007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Garbanzo Bean_1
+      rect:
+        serializedVersion: 2
+        x: 1001
+        y: 0
+        width: 498
+        height: 644
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3a15712bdfa7aee40b23385eb60d2642
+      internalID: 1871790129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    spriteID: d9b94360a957d25428a1ae204e227ccc
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -109,7 +153,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Garbanzo Bean_0: 1434557007
+      Garbanzo Bean_1: 1871790129
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 10037915a9edf7a41a90892a2e7cf412
+guid: 86ed6a5f4a639ee418961f55118291f3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,13 +43,13 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 241, y: 0, z: 243, w: 6}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -95,13 +95,57 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Garbanzo Bean Shadow_0
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 471
+        width: 746
+        height: 744
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90ced80cfd2591645934e249c5786467
+      internalID: 1124525463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Garbanzo Bean Shadow_1
+      rect:
+        serializedVersion: 2
+        x: 1001
+        y: 0
+        width: 495
+        height: 654
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58c6e2d84d231424ba4b4cc4ce58a3bb
+      internalID: 489745054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    spriteID: e4823fe11aa312c42aabcd6d0074d0ca
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -109,7 +153,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Garbanzo Bean Shadow_0: 1124525463
+      Garbanzo Bean Shadow_1: 489745054
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

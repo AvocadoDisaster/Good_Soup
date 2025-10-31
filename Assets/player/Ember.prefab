@@ -157,8 +157,9 @@ GameObject:
   - component: {fileID: 3174907446162889437}
   - component: {fileID: 535720512449802512}
   - component: {fileID: 7738921901720034612}
-  - component: {fileID: 660424569397296128}
+  - component: {fileID: 57370920943007645}
   - component: {fileID: 6172134067762474424}
+  - component: {fileID: 8142298428842036393}
   m_Layer: 0
   m_Name: Ember
   m_TagString: Ember
@@ -344,7 +345,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &660424569397296128
+--- !u!114 &57370920943007645
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -353,15 +354,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8304357832493065059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f178db55bf517149a3724a233b0958e, type: 3}
+  m_Script: {fileID: 11500000, guid: 6537eae8fcbfcce4680a24a07a6b4512, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::projectile
-  _Line: {fileID: 7113536278209115243}
-  _Step: 0.1
-  Spoon: {fileID: 5411734038734837, guid: 0293069fec0bc4e44976f07d1f7be9b2, type: 3}
-  IsThrown: 0
-  _Camera: {fileID: 7952872871845371194, guid: 3e20d4ea4ed81f249b4929694453338d, type: 3}
-  InParty: {fileID: 5415727389956818224, guid: 0293069fec0bc4e44976f07d1f7be9b2, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::EmberThrowable
+  groundSnapSpeed: 20
+  maxGroundSearchDistance: 10
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!114 &6172134067762474424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,13 +374,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e0fd915e6f42647b5cd4a68b049c31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EmberBehavior
-  detectionRadius: 3
+  detectionRadius: 5
   ingredientLayer:
     serializedVersion: 2
     m_Bits: 512
-  charcoalLayer:
+--- !u!114 &8142298428842036393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8304357832493065059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 745001f04c57b574e94c8854dc5b5423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Projectile
+  _Line: {fileID: 7113536278209115243}
+  _Step: 0.1
+  Spoon: {fileID: 2979899608398407624, guid: 26241ab4f806e79419a39b70e90745de, type: 3}
+  IsThrown: 0
+  groundLayer:
     serializedVersion: 2
-    m_Bits: 256
-  garbanzoBeanLayer:
-    serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 8
+  _Camera: {fileID: 7952872871845371194, guid: 3e20d4ea4ed81f249b4929694453338d, type: 3}
+  InParty: {fileID: 5415727389956818224, guid: 0293069fec0bc4e44976f07d1f7be9b2, type: 3}
+  trajectoryPoints: 30
+  trajectoryTimeStep: 0.1
+  landingIndicator: {fileID: 0}
+  indicatorHoverHeight: 0.2
+  groundCheckRadius: 1
+  maxGroundSearchDistance: 10
+  landingSnapSpeed: 20
