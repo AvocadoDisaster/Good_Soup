@@ -341,7 +341,7 @@ public class GarbanzoBean : MonoBehaviour
         {
             rb.isKinematic = true;
             rb.useGravity = false;
-            rb.linearVelocity = Vector3.zero;
+           // rb.linearVelocity; 
             rb.angularVelocity = Vector3.zero;
         }
 
@@ -353,6 +353,7 @@ public class GarbanzoBean : MonoBehaviour
         }
 
         Debug.Log($"<color=yellow>✓ {gameObject.name} dropped at position {transform.position}</color>");
+        transform.position = new Vector3(this.transform.position.x, this.transform.position.y-3f, this.transform.position.z);
     }
 
     private void DeliverToPot()

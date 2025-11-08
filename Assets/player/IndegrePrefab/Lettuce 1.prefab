@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1746005947496035344}
   - component: {fileID: 7223178000386802779}
   m_Layer: 9
-  m_Name: Lettuce
+  m_Name: Lettuce 1
   m_TagString: Ingredient
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

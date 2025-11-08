@@ -145,7 +145,7 @@ public class EmberThrowable : MonoBehaviour
 
     private void CompleteLanding()
     {
-        Debug.Log($"<color=green>=== EMBER LANDED SUCCESSFULLY ===</color>");
+        Debug.Log($"<color=green> EMBER LANDED SUCCESSFULLY </color>");
         Debug.Log($"  Final position: {transform.position}");
 
         isThrown = false;
@@ -173,11 +173,11 @@ public class EmberThrowable : MonoBehaviour
             
             if (agent.isOnNavMesh)
             {
-                Debug.Log($"<color=green>✓ Agent successfully on NavMesh</color>");
+                Debug.Log($"<color=green> Agent successfully on NavMesh</color>");
             }
             else
             {
-                Debug.LogError($"<color=red>❌ Agent NOT on NavMesh after landing!</color>");
+                Debug.LogError($"<color=red> Agent NOT on NavMesh after landing!</color>");
             }
         }
 
@@ -191,7 +191,7 @@ public class EmberThrowable : MonoBehaviour
         // Remove this component as it's no longer needed
         Destroy(this, 0.1f);
         
-        Debug.Log($"<color=green>✓ Landing complete!</color>");
+        Debug.Log($"<color=green>Landing complete!</color>");
     }
 
     private void OnDrawGizmos()

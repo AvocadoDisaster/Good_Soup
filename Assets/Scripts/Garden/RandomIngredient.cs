@@ -42,11 +42,10 @@ public class RandomIngredientSpawner : MonoBehaviour
             GameObject ingredientPrefab = ingredients[i];
             Transform spawnPoint = spawnPoints[i];
 
-            // Option 1: Instantiate new objects
+            
             GameObject newIngredient = Instantiate(ingredientPrefab, spawnPoint.position, spawnPoint.rotation);
 
-            // Option 2: If you already have them in scene, just move them:
-            // ingredientPrefab.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
+            
 
             Debug.Log($"Spawned {newIngredient.name} at {spawnPoint.name}");
         }

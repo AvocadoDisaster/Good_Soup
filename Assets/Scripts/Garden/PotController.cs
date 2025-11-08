@@ -9,6 +9,7 @@ public class PotController : MonoBehaviour
 {
     [Header("Game Settings")]
     [SerializeField] private int requiredIngredients = 9; // 9 ingredients total (including Meat)
+    [SerializeField] Transform potl;
     [SerializeField] private int requiredGarbanzoBeans = 15; // Number of individual beans needed
     [SerializeField]
     public List<string> allPossibleIngredients = new List<string>
@@ -310,10 +311,10 @@ public class PotController : MonoBehaviour
     private void ReceiveCharcoal(Charcoal charcoal)
     {
         Debug.Log($"<color=orange>========== CHARCOAL RECEIVED ==========</color>");
-        Debug.Log($"  Spawning new ember at pot position: {transform.position}");
+        Debug.Log($"  Spawning new ember at pot position: {potl.position}");
 
         // Charcoal always spawns a new ember
-        SpawnNewEmber(transform.position);
+        SpawnNewEmber(potl.position);
 
         // Destroy charcoal
         Debug.Log($"<color=orange>  Destroying charcoal: {charcoal.gameObject.name}</color>");

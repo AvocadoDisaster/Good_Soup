@@ -69,9 +69,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Charcoal
   hoverHeight: 6
-  detectionRadius: 3
+  detectionRadius: 6
   carrySpeed: 6
-  pot: {fileID: 8590341551157385721, guid: 8a0fb28299e815e4fa3ff76df344bc4e, type: 3}
+  pot: {fileID: 6163567950968379214, guid: 4fa44f0bed89d484fbe9d2ea2aded197, type: 3}
 --- !u!54 &2268248524570522644
 Rigidbody:
   m_ObjectHideFlags: 0

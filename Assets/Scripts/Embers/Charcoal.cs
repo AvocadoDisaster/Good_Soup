@@ -44,16 +44,17 @@ public class Charcoal : MonoBehaviour
 
     private void Update()
     {
-        // CRITICAL: Check state FIRST if we have a carrier
+        // CRITICAL: Check state FIRST every frame if we have a carrier
         if (carrierEmber != null)
         {
             EmberState emberState = EmberStateManager.Instance.GetEmberState(carrierEmber.gameObject);
 
+            // Drop immediately if ember is rallied or thrown
             if (emberState == EmberState.IN_RALLY_PARTY ||
                 emberState == EmberState.BEING_THROWN ||
                 emberState != EmberState.ON_CHARCOAL)
             {
-                Debug.Log($"<color=red>IMMEDIATE DROP! Ember state is {emberState}</color>");
+                Debug.Log($"<color=red>CHARCOAL: Ember state changed to {emberState} - DROPPING IMMEDIATELY!</color>");
                 Drop();
                 return;
             }
