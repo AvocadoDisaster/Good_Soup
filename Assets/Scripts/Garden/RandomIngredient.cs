@@ -1,55 +1,62 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
-public class RandomIngredient : MonoBehaviour
+public class RandomIngredientSpawner : MonoBehaviour
 {
     [Header("Pot Controller Script")]
-    [SerializeField] public PotController potController;
+    [SerializeField] private PotController potController;
 
-    [Header("Ingredients")]
-    [SerializeField] public GameObject[] ingredients;
+    [Header("Ingredients Prefabs")]
+    [SerializeField] private GameObject[] ingredients;
 
     [Header("Spawn Points")]
-    [SerializeField] public Transform[] spawnPoints;
+    [SerializeField] private Transform[] spawnPoints;
+
+    [Header("Number of Ingredients to Spawn")]
+    [SerializeField] private int numberToSpawn = 12;
 
     void Start()
     {
         RandomIngredientSpawn();
     }
-    
 
     //-----------------------------------------------------------------------------------------------------------------------
-    void RandomIngredientSpawn()
+    private void RandomIngredientSpawn()
     {
-        //Shuffle the position of ingredients
-        RandomIngredientIndex(ingredients);
-
-        int ingredientNum = potController.allPossibleIngredients.Count;
-
-        for (int i = 1; i < ingredientNum; i++)
+        if (ingredients.Length == 0 || spawnPoints.Length == 0)
         {
-            GameObject ingredientToMove = ingredients[i];
+            Debug.LogWarning("No ingredients or spawn points assigned!");
+            return;
+        }
 
+        // Clamp spawn count
+        int spawnCount = Mathf.Min(numberToSpawn, ingredients.Length, spawnPoints.Length);
+
+        // Shuffle both lists
+        ShuffleArray(ingredients);
+        ShuffleArray(spawnPoints);
+
+        // Spawn or reposition ingredients
+        for (int i = 0; i < spawnCount; i++)
+        {
+            GameObject ingredientPrefab = ingredients[i];
             Transform spawnPoint = spawnPoints[i];
 
-            ingredientToMove.transform.position = spawnPoint.position;
-            ingredientToMove.transform.rotation = spawnPoint.rotation;
             
-            Debug.Log($"Repositioned {ingredientToMove.name} to {spawnPoint.name}.");
+            GameObject newIngredient = Instantiate(ingredientPrefab, spawnPoint.position, spawnPoint.rotation);
+
+            
+
+            Debug.Log($"Spawned {newIngredient.name} at {spawnPoint.name}");
         }
     }
 
-    private void RandomIngredientIndex(GameObject[] array)
+    private void ShuffleArray<T>(T[] array)
     {
-        // Iterate backwards through the array
-        for (int i = array.Length - 1; i > 1; i--)
+        for (int i = array.Length - 1; i > 0; i--)
         {
-            // Pick a random index from 0 to i (inclusive)
-            int randIndex = Random.Range(1, i + 1);
-
-            // Swap the current element
-            (array[randIndex], array[i]) = (array[i], array[randIndex]);
+            int randIndex = Random.Range(0, i + 1);
+            (array[i], array[randIndex]) = (array[randIndex], array[i]);
         }
     }
 }

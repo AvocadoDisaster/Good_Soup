@@ -1,19 +1,22 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class PotController : MonoBehaviour
 {
     [Header("Game Settings")]
-    [SerializeField] private int requiredIngredients = 9;
+    [SerializeField] private int requiredIngredients = 9; // 9 ingredients total (including Meat)
+    [SerializeField] Transform potl;
+    [SerializeField] private int requiredGarbanzoBeans = 15; // Number of individual beans needed
     [SerializeField]
     public List<string> allPossibleIngredients = new List<string>
     {
-        "Carrot", "Mushroom", "Tomato", "Onion", "Potato",
-        "Radish", "Lettuce", "Parsley", "Jalepenos",
-        "Limon", "Garbonzo"
+        "Meat","Carrot", "Mushroom", "Tomato", "Onion", "Potato",
+        "Radish", "Lettuce", "Parsley", "Jalepenos", "Limon"
+        // Note:  and "Garbonzo" are handled separately - Meat is always required, Garbonzo needs 15 beans
     };
 
     public GameObject Ingredeient;
@@ -37,6 +40,8 @@ public class PotController : MonoBehaviour
     public HashSet<string> selectedIngredients = new HashSet<string>();
     private HashSet<string> collectedIngredients = new HashSet<string>();
     private HashSet<string> wrongIngredients = new HashSet<string>();
+    private int garbanzoBeanCount = 0; // Track individual bean count
+    private bool garbanzoComplete = false; // Track if garbanzo beans are complete
 
     private void Start()
     {
@@ -46,7 +51,7 @@ public class PotController : MonoBehaviour
             winUI.SetActive(false);
         }
 
-        // Randomly select ingredients (Meat is always included)
+        // Randomly select ingredients (Meat & garbonzo is always included)
         SelectRandomIngredients();
 
         Debug.Log($"<color=cyan>=== POT CONTROLLER INITIALIZED ===</color>");
@@ -63,6 +68,8 @@ public class PotController : MonoBehaviour
             Debug.Log($"Required Ingredients: {requiredIngredients}");
             Debug.Log($"Collected: {collectedIngredients.Count}/{requiredIngredients}");
             Debug.Log($"Collected List: {string.Join(", ", collectedIngredients)}");
+            Debug.Log($"Garbanzo Beans: {garbanzoBeanCount}/{requiredGarbanzoBeans} ({GetGarbanzoProgress() * 100:F1}%)");
+            Debug.Log($"Garbanzo Complete: {garbanzoComplete}");
             Debug.Log($"Selected List: {string.Join(", ", selectedIngredients)}");
             Debug.Log($"Wrong List: {string.Join(", ", wrongIngredients)}");
         }
@@ -70,12 +77,14 @@ public class PotController : MonoBehaviour
 
     private void SelectRandomIngredients()
     {
-        // MEAT is always required
-        selectedIngredients.Add("Meat");
-        Debug.Log("<color=green>✓ Meat is ALWAYS required!</color>");
+        
+        selectedIngredients.Add("Garbonzo");
+        Debug.Log("<color=green>✓ Garbonzo is ALWAYS required!</color>");
 
         // We need 8 more ingredients (total of 9 including Meat)
-        int remainingSlots = requiredIngredients - 1;
+        int remainingSlots = requiredIngredients;
+        ;
+        Debug.Log("<color=green>✓ Garbonzo is ALWAYS required!</color>");
 
         if (allPossibleIngredients.Count < remainingSlots)
         {
@@ -91,26 +100,50 @@ public class PotController : MonoBehaviour
         {
             selectedIngredients.Add(shuffled[i]);
         }
-
+        selectedIngredients.Add("Garbonzo");
         // The remaining ingredients are wrong
         for (int i = remainingSlots; i < allPossibleIngredients.Count; i++)
         {
             wrongIngredients.Add(shuffled[i]);
+            if(wrongIngredients.Contains("Garbonzo"))
+            {
+                wrongIngredients.Remove("Garbonzo");
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"<color=yellow>Pot OnTriggerEnter: {other.gameObject.name}</color>");
+        Debug.Log($"<color=yellow>Pot OnTriggerEnter: {other.gameObject.name} (Tag: {other.tag})</color>");
 
         // Check if it's an ingredient
         IngredientCarrier ingredient = other.GetComponent<IngredientCarrier>();
-        EmberBehavior ember = other.GetComponent<EmberBehavior>();
-        if (ingredient != null|| ember != null)
+        if (ingredient != null)
         {
             Debug.Log($"<color=cyan>Ingredient detected: {ingredient.ingredientName}</color>");
             ReceiveIngredient(ingredient);
+            return;
         }
+
+        // Check if it's a Garbanzo Bean
+        GarbanzoBean bean = other.GetComponent<GarbanzoBean>();
+        if (bean != null)
+        {
+            Debug.Log($"<color=cyan>Garbanzo Bean detected!</color>");
+            ReceiveGarbanzoBean(bean);
+            return;
+        }
+
+        // Check if it's Charcoal
+        Charcoal charcoal = other.GetComponent<Charcoal>();
+        if (charcoal != null)
+        {
+            Debug.Log($"<color=orange>Charcoal detected!</color>");
+            ReceiveCharcoal(charcoal);
+            return;
+        }
+
+        Debug.Log($"<color=grey>Object entered pot but has no relevant component</color>");
     }
 
     public void ReceiveIngredient(IngredientCarrier ingredient)
@@ -222,6 +255,74 @@ public class PotController : MonoBehaviour
         }
     }
 
+    private void ReceiveGarbanzoBean(GarbanzoBean bean)
+    {
+        Debug.Log($"<color=cyan>========== GARBANZO BEAN RECEIVED ==========</color>");
+        Debug.Log($"  Current count: {garbanzoBeanCount}/{requiredGarbanzoBeans}");
+
+        // Check if Garbonzo is a correct ingredient
+        if (selectedIngredients.Contains("Garbonzo"))
+        {
+            // Check if already completed all beans
+            if (garbanzoComplete)
+            {
+                Debug.Log($"<color=yellow>Already collected all {requiredGarbanzoBeans} Garbonzo beans! Ignoring.</color>");
+                Destroy(bean.gameObject);
+                return;
+            }
+
+            // Add to bean count
+            garbanzoBeanCount++;
+
+            Debug.Log($"<color=green>✓ Garbanzo Bean #{garbanzoBeanCount} collected!</color>");
+            Debug.Log($"  Progress: {garbanzoBeanCount}/{requiredGarbanzoBeans} ({GetGarbanzoProgress() * 100:F1}%)</color>");
+
+            if (correctIngredientFX != null)
+            {
+                correctIngredientFX.Play();
+            }
+
+            // Check if we've collected all beans
+            if (garbanzoBeanCount >= requiredGarbanzoBeans)
+            {
+                garbanzoComplete = true;
+                collectedIngredients.Add("Garbonzo");
+                Debug.Log($"<color=green>🎉 ALL GARBANZO BEANS COLLECTED! ({requiredGarbanzoBeans}/{requiredGarbanzoBeans})</color>");
+                Debug.Log($"<color=green>Garbonzo added to collected ingredients ({collectedIngredients.Count}/{requiredIngredients})</color>");
+            }
+
+            // Destroy bean
+            Destroy(bean.gameObject);
+
+            // Check win condition
+            if (collectedIngredients.Count >= requiredIngredients)
+            {
+                CompleteSoup();
+            }
+        }
+        
+        else
+        {
+            Debug.LogWarning($"<color=yellow>Garbonzo not in selected or wrong lists!</color>");
+            Destroy(bean.gameObject);
+        }
+    }
+
+    private void ReceiveCharcoal(Charcoal charcoal)
+    {
+        Debug.Log($"<color=orange>========== CHARCOAL RECEIVED ==========</color>");
+        Debug.Log($"  Spawning new ember at pot position: {potl.position}");
+
+        // Charcoal always spawns a new ember
+        SpawnNewEmber(potl.position);
+
+        // Destroy charcoal
+        Debug.Log($"<color=orange>  Destroying charcoal: {charcoal.gameObject.name}</color>");
+        Destroy(charcoal.gameObject);
+
+        Debug.Log($"<color=green>✓ Charcoal processed successfully!</color>");
+    }
+
     private void LoadWinScene()
     {
         Debug.Log($"<color=cyan>Loading win scene: {winSceneName}</color>");
@@ -230,24 +331,75 @@ public class PotController : MonoBehaviour
 
     public void SpawnNewEmber(Vector3 position)
     {
-        if (emberPrefab != null)
+        if (emberPrefab == null)
         {
-            // Spawn slightly offset from position
-            Vector3 spawnPos = position + Random.insideUnitSphere * 0.5f;
-            spawnPos.y = position.y;
+            Debug.LogError("<color=red> Ember prefab not assigned to PotController!</color>");
+            return;
+        }
 
-            GameObject newEmber = Instantiate(emberPrefab, spawnPos, Quaternion.identity);
-            Debug.Log($"<color=cyan> New ember spawned at pot!</color>");
+        // Try to find a valid NavMesh position near the pot
+        Vector3 spawnPos = position;
+        spawnPos.y = position.y + 0.5f; // Start slightly above ground
+
+        NavMeshHit hit;
+        // Search within 5 units for a valid NavMesh position
+        if (NavMesh.SamplePosition(spawnPos, out hit, 5f, NavMesh.AllAreas))
+        {
+            spawnPos = hit.position;
+            spawnPos.y += 0.5f; // Spawn slightly above the NavMesh
+            Debug.Log($"<color=green>Found valid NavMesh position at {spawnPos}</color>");
         }
         else
         {
-            Debug.LogWarning("Ember prefab not assigned to PotController!");
+            Debug.LogWarning($"<color=yellow> Could not find NavMesh near {position}, spawning at original position</color>");
+        }
+
+        GameObject newEmber = Instantiate(emberPrefab, spawnPos, Quaternion.identity);
+
+        // Verify the ember has NavMeshAgent and try to place it on NavMesh
+        NavMeshAgent agent = newEmber.GetComponent<NavMeshAgent>();
+        if (agent != null)
+        {
+            // Disable agent temporarily
+            agent.enabled = false;
+
+            // Set position
+            newEmber.transform.position = spawnPos;
+
+            // Try to warp to NavMesh
+            if (NavMesh.SamplePosition(spawnPos, out hit, 5f, NavMesh.AllAreas))
+            {
+                newEmber.transform.position = hit.position;
+                Debug.Log($"<color=cyan>Warped new ember to NavMesh at {hit.position}</color>");
+            }
+
+            // Re-enable agent
+            agent.enabled = true;
+
+            // Verify it's on NavMesh
+            if (agent.isOnNavMesh)
+            {
+                Debug.Log($"<color=green>✓ New ember successfully spawned on NavMesh at {newEmber.transform.position}!</color>");
+            }
+            else
+            {
+                Debug.LogError($"<color=red> New ember NOT on NavMesh after spawn! Position: {newEmber.transform.position}</color>");
+            }
+        }
+        else
+        {
+            Debug.LogError($"<color=red> Spawned ember has no NavMeshAgent component!</color>");
         }
     }
 
     public float GetProgress()
     {
         return (float)collectedIngredients.Count / requiredIngredients;
+    }
+
+    public float GetGarbanzoProgress()
+    {
+        return (float)garbanzoBeanCount / requiredGarbanzoBeans;
     }
 
     public int GetCollectedCount()
@@ -260,6 +412,16 @@ public class PotController : MonoBehaviour
         return requiredIngredients;
     }
 
+    public int GetGarbanzoBeanCount()
+    {
+        return garbanzoBeanCount;
+    }
+
+    public int GetRequiredGarbanzoBeanCount()
+    {
+        return requiredGarbanzoBeans;
+    }
+
     // Debug display
     private void OnGUI()
     {
@@ -270,8 +432,16 @@ public class PotController : MonoBehaviour
             GUI.Label(new Rect(10, 40, 400, 30),
                 $"Progress: {GetProgress() * 100:F0}%");
 
+            // Show garbanzo bean progress
+            if (selectedIngredients.Contains("Garbonzo"))
+            {
+                string garbanzoStatus = garbanzoComplete ? " COMPLETE" : "IN PROGRESS";
+                GUI.Label(new Rect(10, 70, 400, 30),
+                    $"Garbonzo Beans: {garbanzoBeanCount}/{requiredGarbanzoBeans} ({GetGarbanzoProgress() * 100:F0}%) {garbanzoStatus}");
+            }
+
             // Show collected ingredients
-            int yPos = 70;
+            int yPos = 100;
             GUI.Label(new Rect(10, yPos, 400, 30), "Collected:");
             yPos += 25;
             foreach (string ing in collectedIngredients)

@@ -90,7 +90,7 @@ public class GameTimer : MonoBehaviour
         currentTime += seconds;
         currentTime = Mathf.Min(currentTime, totalTime); // Cap at max time
         UpdateTimerDisplay();
-        Debug.Log($"⏰ Added {seconds} seconds!");
+        Debug.Log($" Added {seconds} seconds!");
     }
 
     public void SubtractTime(float seconds)

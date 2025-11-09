@@ -6,11 +6,12 @@ public class Charcoal : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float hoverHeight = 0.5f;
     [SerializeField] private float detectionRadius = 3f;
-    [SerializeField] private float carrySpeed = 6f; // Speed when being carried
+    [SerializeField] private float carrySpeed = 6f;
     [SerializeField] private GameObject pot;
 
     private EmberBehavior carrierEmber;
     private bool isBeingCarried = false;
+    private bool hasCarrier = false;
     private Rigidbody rb;
     private Vector3 spawnPosition;
 
@@ -19,10 +20,16 @@ public class Charcoal : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = false;
-            rb.useGravity = true;
+            rb.isKinematic = true;
+            rb.useGravity = false;
         }
+        else
+        {
+            Debug.LogWarning($"<color=yellow>Charcoal {gameObject.name} has no Rigidbody!</color>");
+        }
+
         spawnPosition = transform.position;
+        Debug.Log($"<color=orange>Charcoal Awake: {gameObject.name}</color>");
     }
 
     private void Start()
@@ -31,23 +38,34 @@ public class Charcoal : MonoBehaviour
         {
             pot = GameObject.FindGameObjectWithTag("Pot");
         }
+
+        Debug.Log($"<color=orange>Charcoal spawned at {spawnPosition}</color>");
     }
 
     private void Update()
     {
-        if (!isBeingCarried)
-        {
-            DetectNearbyEmber();
-        }
-        else if (carrierEmber != null)
+        // CRITICAL: Check state FIRST every frame if we have a carrier
+        if (carrierEmber != null)
         {
             EmberState emberState = EmberStateManager.Instance.GetEmberState(carrierEmber.gameObject);
-            if (emberState != EmberState.ON_CHARCOAL)
+
+            // Drop immediately if ember is rallied or thrown
+            if (emberState == EmberState.IN_RALLY_PARTY ||
+                emberState == EmberState.BEING_THROWN ||
+                emberState != EmberState.ON_CHARCOAL)
             {
-                Debug.Log($"<color=yellow>Ember state changed to {emberState}, dropping charcoal!</color>");
+                Debug.Log($"<color=red>CHARCOAL: Ember state changed to {emberState} - DROPPING IMMEDIATELY!</color>");
                 Drop();
                 return;
             }
+        }
+
+        if (!isBeingCarried && !hasCarrier)
+        {
+            DetectNearbyEmber();
+        }
+        else if (isBeingCarried && carrierEmber != null)
+        {
             UpdateCarrying();
         }
     }
@@ -63,7 +81,6 @@ public class Charcoal : MonoBehaviour
                 EmberBehavior ember = col.GetComponent<EmberBehavior>();
                 if (ember != null)
                 {
-                    // Check if ember is FREE
                     EmberState state = EmberStateManager.Instance.GetEmberState(col.gameObject);
                     if (state == EmberState.FREE)
                     {
@@ -77,20 +94,23 @@ public class Charcoal : MonoBehaviour
 
     private void AttachToEmber(EmberBehavior ember)
     {
-        // Claim the ember with new ON_CHARCOAL state
+        if (hasCarrier)
+        {
+            return;
+        }
+
         if (EmberStateManager.Instance.TryClaimEmber(ember.gameObject, EmberState.ON_CHARCOAL))
         {
             carrierEmber = ember;
             isBeingCarried = true;
+            hasCarrier = true;
 
-            // Disable physics
             if (rb != null)
             {
                 rb.isKinematic = true;
                 rb.useGravity = false;
             }
 
-            // Disable collider
             Collider col = GetComponent<Collider>();
             if (col != null && !col.isTrigger)
             {
@@ -98,8 +118,6 @@ public class Charcoal : MonoBehaviour
             }
 
             Debug.Log($"<color=orange>{gameObject.name} picked up by {ember.gameObject.name}</color>");
-
-            // Start moving to pot
             StartCarrying();
         }
     }
@@ -111,7 +129,6 @@ public class Charcoal : MonoBehaviour
             NavMeshAgent agent = carrierEmber.GetAgent();
             if (agent != null)
             {
-                // Ensure agent is enabled and on NavMesh
                 if (!agent.enabled)
                 {
                     agent.enabled = true;
@@ -127,9 +144,13 @@ public class Charcoal : MonoBehaviour
                 }
 
                 agent.speed = carrySpeed;
+                agent.acceleration = 8f;
+                agent.angularSpeed = 120f;
                 agent.isStopped = false;
+                agent.updateRotation = true;
+                agent.updatePosition = true;
                 agent.SetDestination(pot.transform.position);
-                agent.destination = pot.transform.position;
+
                 Debug.Log($"<color=orange>Charcoal being carried to pot at speed {carrySpeed}</color>");
             }
         }
@@ -137,32 +158,61 @@ public class Charcoal : MonoBehaviour
 
     private void UpdateCarrying()
     {
-        // Check if ember still exists and is still carrying us
         if (carrierEmber == null)
         {
             Drop();
             return;
         }
 
-        // Check ember state - if not ON_CHARCOAL, drop
         EmberState emberState = EmberStateManager.Instance.GetEmberState(carrierEmber.gameObject);
         if (emberState != EmberState.ON_CHARCOAL)
         {
-            Debug.Log($"<color=yellow>Ember changed state to {emberState}, dropping charcoal</color>");
+            Debug.Log($"<color=yellow>Ember changed state to {emberState}, DROPPING charcoal!</color>");
             Drop();
             return;
         }
 
-        // Position charcoal above ember
+        NavMeshAgent agent = carrierEmber.GetAgent();
+        if (agent != null && pot != null)
+        {
+            if (agent.isStopped)
+            {
+                Debug.LogWarning($"<color=yellow>Charcoal agent was stopped! Re-enabling...</color>");
+                agent.isStopped = false;
+            }
+
+            if (!agent.hasPath || agent.remainingDistance < 0.5f)
+            {
+                agent.SetDestination(pot.transform.position);
+            }
+
+            if (Time.frameCount % 60 == 0)
+            {
+                Debug.Log($"<color=orange>{gameObject.name} carrying status:</color>");
+                Debug.Log($"  Agent Speed: {agent.speed}");
+                Debug.Log($"  Agent isStopped: {agent.isStopped}");
+                Debug.Log($"  Agent hasPath: {agent.hasPath}");
+                Debug.Log($"  Agent pathStatus: {agent.pathStatus}");
+                Debug.Log($"  Agent velocity: {agent.velocity.magnitude:F2}");
+                Debug.Log($"  Distance to pot: {Vector3.Distance(transform.position, pot.transform.position):F2}");
+            }
+        }
+
         Vector3 targetPosition = carrierEmber.transform.position + Vector3.up * hoverHeight;
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f);
 
-        // Check if reached pot
         if (pot != null)
         {
             float distanceToPot = Vector3.Distance(transform.position, pot.transform.position);
+
+            if (distanceToPot < 5f && Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"<color=orange>Charcoal approaching pot! Distance: {distanceToPot:F2}</color>");
+            }
+
             if (distanceToPot < 2f)
             {
+                Debug.Log($"<color=green>Charcoal reached pot! Distance: {distanceToPot:F2} - Triggering delivery!</color>");
                 DeliverToPot();
             }
         }
@@ -170,69 +220,126 @@ public class Charcoal : MonoBehaviour
 
     private void Drop()
     {
-        isBeingCarried = false;
+        Debug.Log($"<color=red>=== DROP CALLED for {gameObject.name} ===</color>");
+        Debug.Log($"  Current position: {transform.position}");
 
-        // Release ember before clearing reference
-        if (carrierEmber != null)
+        EmberBehavior tempEmber = carrierEmber;
+        carrierEmber = null;
+        isBeingCarried = false;
+        hasCarrier = false;
+
+        if (tempEmber != null)
         {
-            EmberStateManager.Instance.ReleaseEmber(carrierEmber.gameObject);
-            carrierEmber = null;
+            Debug.Log($"  Releasing ember: {tempEmber.gameObject.name}");
+            EmberStateManager.Instance.ReleaseEmber(tempEmber.gameObject);
         }
 
-        // Re-enable physics
         if (rb != null)
         {
-            rb.isKinematic = false;
-            rb.useGravity = true;
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
-        // Re-enable collider
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
             col.enabled = true;
         }
 
-        Debug.Log($"<color=yellow>Charcoal dropped</color>");
-        this.transform.position = new Vector3(transform.position.x, transform.position.y -2f, transform.position.z);
-        
+        Debug.Log($"<color=yellow>✓ Charcoal dropped at position {transform.position}</color>");
     }
 
     private void DeliverToPot()
     {
-        Debug.Log($"<color=green> Charcoal delivered to pot!</color>");
+        Debug.Log($"<color=green>========== CHARCOAL DELIVERY TO POT ==========</color>");
+        Debug.Log($"  Charcoal position: {transform.position}");
+        Debug.Log($"  Pot position: {(pot != null ? pot.transform.position.ToString() : "NULL")}");
 
-        // Spawn new ember at pot
-        PotController potController = pot.GetComponent<PotController>();
-        if (potController != null)
+        EmberBehavior deliveryEmber = carrierEmber;
+        Vector3 returnPosition = spawnPosition;
+
+        // Try to find and call PotController
+        PotController potController = null;
+        if (pot != null)
         {
-            potController.SpawnNewEmber(pot.transform.position);
+            potController = pot.GetComponent<PotController>();
+            if (potController != null)
+            {
+                Debug.Log($"<color=green>  PotController found! Calling ReceiveCharcoal...</color>");
+                potController.GetType().GetMethod("ReceiveCharcoal",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.Invoke(potController, new object[] { this });
+            }
+            else
+            {
+                Debug.LogError($"<color=red>  PotController NOT FOUND on {pot.name}!</color>");
+            }
         }
 
-        // Release carrier ember
-        if (carrierEmber != null)
+        // Release carrier ember and check for more charcoal
+        if (deliveryEmber != null)
         {
-            EmberStateManager.Instance.ReleaseEmber(carrierEmber.gameObject);
+            EmberStateManager.Instance.ReleaseEmber(deliveryEmber.gameObject);
+
+            // Check if there are more charcoal pieces at the spawn location
+            Collider[] nearbyColl = Physics.OverlapSphere(returnPosition, 5f);
+            bool hasMoreCharcoal = false;
+            foreach (Collider col in nearbyColl)
+            {
+                Charcoal charcoal = col.GetComponent<Charcoal>();
+                if (charcoal != null && charcoal != this && !charcoal.HasCarrier())
+                {
+                    hasMoreCharcoal = true;
+                    Debug.Log($"<color=cyan>  Found more charcoal at pile: {charcoal.gameObject.name}</color>");
+                    break;
+                }
+            }
+
+            // Only send ember back if there's more charcoal
+            if (hasMoreCharcoal)
+            {
+                NavMeshAgent agent = deliveryEmber.GetAgent();
+                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                {
+                    agent.speed = 3.5f;
+                    agent.isStopped = false;
+                    bool pathSet = agent.SetDestination(returnPosition);
+                    Debug.Log($"<color=magenta>  Sending ember back to charcoal pile at {returnPosition}</color>");
+                    Debug.Log($"  Path set successfully: {pathSet}</color>");
+                }
+                else
+                {
+                    Debug.LogWarning($"<color=yellow>  Cannot send ember back - agent issues</color>");
+                }
+            }
+            else
+            {
+                Debug.Log($"<color=grey>  No more charcoal at pile, ember stays at pot</color>");
+            }
         }
 
-        // Destroy charcoal
-        Destroy(gameObject);
+        Debug.Log($"<color=green>✓ Charcoal delivery complete!</color>");
     }
-    public Vector3 GetSpawnPosition()
+
+    public bool HasCarrier()
     {
-        return spawnPosition;
+        return hasCarrier;
     }
+
     private void OnDrawGizmosSelected()
     {
-        // Show detection radius
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
         if (isBeingCarried && pot != null)
         {
-            // Show line to pot
             Gizmos.color = Color.orange;
             Gizmos.DrawLine(transform.position, pot.transform.position);
         }
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(spawnPosition, 0.2f);
     }
 }
