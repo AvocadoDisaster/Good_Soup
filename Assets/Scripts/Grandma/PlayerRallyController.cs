@@ -33,76 +33,64 @@ public class PlayerRallyController : MonoBehaviour
 
     public void OnTriggerEnter(Collider collision)
     {
-        // Use collision.gameObject directly instead of finding by tag
         if (collision.CompareTag("Ember"))
         {
             GameObject ember = collision.gameObject;
 
-            Debug.Log($"<color=cyan>Rally Caller detected: {ember.name}</color>");
+            Debug.Log($"<color=cyan>========== RALLY ATTEMPT ==========</color>");
+            Debug.Log($"  Ember: {ember.name}");
 
             // Check if ember is already in the party list
             if (inParty.InCurrentParty.Contains(ember))
             {
-                Debug.Log($"<color=yellow>Ember {ember.name} already in party!</color>");
+                Debug.Log($"<color=yellow>  Already in party!</color>");
                 return;
             }
 
             // Get current state
             EmberState checkState = EmberStateManager.Instance.GetEmberState(ember);
-            Debug.Log($"<color=cyan>Rally attempt on {ember.name} - Current state: {checkState}</color>");
+            Debug.Log($"  Current State: {checkState}");
 
-            // If ember is on an ingredient, remove it from ingredient first
+            // CRITICAL: Force drop any items before rallying
+            ForceDropCarriedItems(ember, checkState);
+
+            // If ember is on an ingredient, remove it first
             if (checkState == EmberState.ON_INGREDIENT)
             {
-                Debug.Log($"<color=yellow>Ember {ember.name} is ON_INGREDIENT - removing from ingredient</color>");
-
-                // Find ingredient by checking the ember's currentIngredient reference
+                Debug.Log($"<color=yellow>  Detaching from ingredient...</color>");
                 EmberBehavior emberBehavior = ember.GetComponent<EmberBehavior>();
                 if (emberBehavior != null)
                 {
-                    // This will call RemoveEmber on the ingredient and set state to FREE
                     emberBehavior.DetachFromIngredient();
-                    Debug.Log($"  - Detached {ember.name} from ingredient via EmberBehavior");
-                }
-                else
-                {
-                    Debug.LogWarning($"  - {ember.name} has no EmberBehavior component!");
                 }
             }
 
-            // Now try to claim for rally (should be FREE after detaching)
+            // Now try to claim for rally
             if (EmberStateManager.Instance.TryClaimEmber(ember, EmberState.IN_RALLY_PARTY))
             {
                 // Successfully claimed! Add to party
                 inParty.InCurrentParty.Add(ember);
 
-                // DEBUG: Check NavMeshAgent
+                // Setup NavMeshAgent
                 NavMeshAgent emberAgent = ember.GetComponent<NavMeshAgent>();
                 if (emberAgent == null)
                 {
-                    Debug.LogError($" {ember.name} has NO NavMeshAgent component!");
+                    Debug.LogError($"<color=red>  No NavMeshAgent!</color>");
                     return;
                 }
 
                 if (!emberAgent.enabled)
                 {
-                    Debug.LogWarning($" {ember.name} NavMeshAgent is DISABLED. Enabling...");
                     emberAgent.enabled = true;
                 }
 
                 if (!emberAgent.isOnNavMesh)
                 {
-                    Debug.LogError($" {ember.name} is NOT on NavMesh! Position: {ember.transform.position}");
+                    Debug.LogError($"<color=red>  NOT on NavMesh at {ember.transform.position}</color>");
                     return;
                 }
 
-                if (Spoon == null)
-                {
-                    Debug.LogError($" Spoon Transform is NULL!");
-                    return;
-                }
-
-                // Set ember's destination to the Spoon
+                // Configure agent
                 emberAgent.isStopped = false;
                 emberAgent.updateRotation = true;
                 emberAgent.updatePosition = true;
@@ -111,44 +99,79 @@ public class PlayerRallyController : MonoBehaviour
                 Rigidbody rb = ember.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
-                    rb.isKinematic = true; // NavMeshAgent controls movement
-                    Debug.Log($"  - Set Rigidbody to kinematic");
+                    rb.isKinematic = true;
                 }
 
                 emberAgent.SetDestination(Spoon.position);
 
-                Debug.Log($"<color=green>✓ {ember.name} → Rally Party! Moving to Spoon at {Spoon.position}</color>");
-                Debug.Log($"  - Agent Speed: {emberAgent.speed}");
-                Debug.Log($"  - Agent Stopping Distance: {emberAgent.stoppingDistance}");
-                Debug.Log($"  - Agent isStopped: {emberAgent.isStopped}");
-                Debug.Log($"  - Agent hasPath: {emberAgent.hasPath}");
-                Debug.Log($"  - Agent pathPending: {emberAgent.pathPending}");
-                Debug.Log($"  - Distance to Spoon: {Vector3.Distance(ember.transform.position, Spoon.position):F2}");
-                Debug.Log($"  - Total in party: {inParty.InCurrentParty.Count}");
+                Debug.Log($"<color=green>✓ {ember.name} RALLIED! Total in party: {inParty.InCurrentParty.Count}</color>");
             }
             else
             {
-                // Ember is already claimed by another system
                 EmberState finalState = EmberStateManager.Instance.GetEmberState(ember);
-                Debug.Log($"<color=red>Cannot rally {ember.name} - currently in state: {finalState}</color>");
+                Debug.Log($"<color=red>❌ Cannot rally - state: {finalState}</color>");
             }
         }
     }
 
-    // Optional: If you want embers to continuously update their destination
+    private void ForceDropCarriedItems(GameObject ember, EmberState state)
+    {
+        Debug.Log($"<color=yellow>  Checking for carried items...</color>");
+
+        // Check for charcoal (using new Unity API)
+        Charcoal[] allCharcoal = FindObjectsByType<Charcoal>(FindObjectsSortMode.None);
+        foreach (Charcoal charcoal in allCharcoal)
+        {
+            // Use reflection to get private carrierEmber field
+            var field = typeof(Charcoal).GetField("carrierEmber",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (field != null)
+            {
+                EmberBehavior carrierEmber = field.GetValue(charcoal) as EmberBehavior;
+                if (carrierEmber != null && carrierEmber.gameObject == ember)
+                {
+                    Debug.Log($"<color=orange>  Found charcoal carried by this ember - forcing drop!</color>");
+                    // Call Drop method using reflection
+                    var dropMethod = typeof(Charcoal).GetMethod("Drop",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    dropMethod?.Invoke(charcoal, null);
+                }
+            }
+        }
+
+        // Check for garbanzo beans (using new Unity API)
+        GarbanzoBean[] allBeans = FindObjectsByType<GarbanzoBean>(FindObjectsSortMode.None);
+        foreach (GarbanzoBean bean in allBeans)
+        {
+            var field = typeof(GarbanzoBean).GetField("carrierEmber",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            if (field != null)
+            {
+                EmberBehavior carrierEmber = field.GetValue(bean) as EmberBehavior;
+                if (carrierEmber != null && carrierEmber.gameObject == ember)
+                {
+                    Debug.Log($"<color=cyan>  Found bean carried by this ember - forcing drop!</color>");
+                    var dropMethod = typeof(GarbanzoBean).GetMethod("Drop",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    dropMethod?.Invoke(bean, null);
+                }
+            }
+        }
+    }
+
     public void OnTriggerStay(Collider collision)
     {
         if (collision.CompareTag("Ember"))
         {
             GameObject ember = collision.gameObject;
 
-            // Only update destination if ember is in our party
             if (inParty.InCurrentParty.Contains(ember))
             {
                 NavMeshAgent emberAgent = ember.GetComponent<NavMeshAgent>();
                 if (emberAgent != null && emberAgent.enabled && emberAgent.isOnNavMesh)
                 {
-                    // Keep updating destination in case Spoon moves
                     if (Vector3.Distance(emberAgent.destination, Spoon.position) > 0.5f)
                     {
                         emberAgent.SetDestination(Spoon.position);
@@ -158,7 +181,6 @@ public class PlayerRallyController : MonoBehaviour
         }
     }
 
-    // Continuously update destinations for all party members
     private void UpdateEmberDestinations()
     {
         if (Spoon == null) return;
@@ -170,7 +192,6 @@ public class PlayerRallyController : MonoBehaviour
             NavMeshAgent agent = ember.GetComponent<NavMeshAgent>();
             if (agent != null && agent.enabled && agent.isOnNavMesh)
             {
-                // Only update if destination has changed significantly
                 if (Vector3.Distance(agent.destination, Spoon.position) > 1f)
                 {
                     agent.SetDestination(Spoon.position);
@@ -179,12 +200,10 @@ public class PlayerRallyController : MonoBehaviour
         }
     }
 
-    // Optional: Visual debug
     private void OnDrawGizmos()
     {
         if (Application.isPlaying && Spoon != null && inParty != null)
         {
-            // Draw lines from embers to spoon
             Gizmos.color = Color.cyan;
             foreach (GameObject ember in inParty.InCurrentParty)
             {
@@ -194,7 +213,6 @@ public class PlayerRallyController : MonoBehaviour
                 }
             }
 
-            // Draw spoon position
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(Spoon.position, 0.5f);
         }

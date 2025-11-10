@@ -322,8 +322,9 @@ public class IngredientCarrier : MonoBehaviour
         Debug.Log($"<color=magenta>Releasing all {attachedEmbers.Count} embers from {ingredientName}</color>");
 
         // Scatter embers
-        foreach (EmberBehavior ember in attachedEmbers)
+        for (int i = 0; i < attachedEmbers.Count; i++)
         {
+            EmberBehavior ember = attachedEmbers[i];
             if (ember != null)
             {
                 // Random offset

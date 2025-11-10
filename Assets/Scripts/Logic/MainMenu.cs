@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -10,8 +11,7 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        mapMenuCanvas.SetActive(true);
-        mainMenuCanvas.SetActive(false);
+        SceneManager.LoadScene("Milestone1Scene");
     }
 
     public void OpenControls()

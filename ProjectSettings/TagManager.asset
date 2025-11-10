@@ -11,6 +11,7 @@ TagManager:
   - Spoon
   - Ember
   - Charcoal
+  - Garbonzo
   layers:
   - Default
   - TransparentFX

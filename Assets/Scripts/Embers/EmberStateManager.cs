@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public enum EmberState
 {
@@ -122,7 +123,7 @@ public class EmberStateManager : MonoBehaviour
 
         if (!emberStates.ContainsKey(ember))
         {
-            Debug.LogWarning($"<color=yellow>⚠ Ember {ember.name} not registered! Registering now...</color>");
+            Debug.LogWarning($"<color=yellow> Ember {ember.name} not registered! Registering now...</color>");
             RegisterEmber(ember);
         }
 
@@ -190,8 +191,16 @@ public class EmberStateManager : MonoBehaviour
 
         if (emberStates.ContainsKey(ember))
         {
+            
             EmberState oldState = emberStates[ember];
-            emberStates[ember] = EmberState.FREE;
+            if (oldState == EmberState.ON_CHARCOAL ||
+                oldState == EmberState.ON_GARBANZO_BEANS||
+                oldState == EmberState.ON_INGREDIENT &&  TryClaimEmber(ember, EmberState.IN_RALLY_PARTY))
+            {
+                emberStates[ember] = EmberState.IN_RALLY_PARTY;
+            }
+            else
+                emberStates[ember] = EmberState.FREE;
             Debug.Log($"Ember {ember.name}: {oldState} → FREE");
         }
         else

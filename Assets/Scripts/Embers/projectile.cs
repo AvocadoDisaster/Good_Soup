@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class Projectile : MonoBehaviour
 {
@@ -8,11 +9,19 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float _Step = 0.1f;
     [SerializeField] private Transform Spoon;
     public bool IsThrown;
+    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Camera _Camera;
-    [SerializeField] private InParty InParty;
-
-    private GameObject currentHeldEmber = null;
+   
+    [SerializeField] private int trajectoryPoints = 30;
+    [SerializeField] private float trajectoryTimeStep = 0.1f;
+    
+    [SerializeField] private float indicatorHoverHeight = 0.2f;
+    public GameObject currentHeldEmber = null;
     private bool isHoldingJ = false;
+    
+    [SerializeField] private float groundCheckRadius = 1f;
+   
+    
 
     private void Start()
     {
@@ -21,68 +30,40 @@ public class Projectile : MonoBehaviour
         {
             _Line.enabled = false;
         }
+        
     }
+    
 
     private void Update()
     {
-        // DEBUG: Show party count
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Debug.Log($"<color=white>Party Count: {InParty.InCurrentParty.Count}</color>");
-            for (int i = 0; i < InParty.InCurrentParty.Count; i++)
-            {
-                Debug.Log($"  [{i}] {InParty.InCurrentParty[i].name}");
-            }
-        }
 
-        // Check if we have embers in the party
-        if (InParty.InCurrentParty.Count == 0 && currentHeldEmber == null)
-        {
-            if (_Line != null) _Line.enabled = false;
-            return;
-        }
 
-        // PRESS J: Pick up the first ember from party
+
+
+        // PRESS J: Try to pick up the nearest ember/ingredient
         if (Input.GetKeyDown(KeyCode.J))
         {
-            Debug.Log($"<color=yellow>J Key Pressed Down!</color>");
-            Debug.Log($"  - Current Held Ember: {(currentHeldEmber == null ? "NULL" : currentHeldEmber.name)}");
-            Debug.Log($"  - Party Count: {InParty.InCurrentParty.Count}");
+            Debug.Log("<color=yellow>J Key Pressed Down!</color>");
 
-            if (currentHeldEmber == null && InParty.InCurrentParty.Count > 0)
+            // If not already holding something
+            if (currentHeldEmber == null)
             {
-                GameObject emberToHold = InParty.InCurrentParty[0];
-
-                Debug.Log($"<color=yellow>Attempting to hold ember: {emberToHold.name}</color>");
-
-                // Check current state
-                EmberState emberCurrentState = EmberStateManager.Instance.GetEmberState(emberToHold);
-                Debug.Log($"  - Ember current state: {emberCurrentState}");
-
-                // Claim the ember for throwing
-                bool claimed = EmberStateManager.Instance.TryClaimEmber(emberToHold, EmberState.BEING_THROWN);
-                Debug.Log($"  - Claim result: {claimed}");
-
-                if (claimed)
+                GameObject nearest = FindNearestEmber();
+                if (nearest != null)
                 {
-                    InParty.InCurrentParty.RemoveAt(0); // REMOVE FROM PARTY FIRST
-                    Debug.Log($"  - Removed from party. New count: {InParty.InCurrentParty.Count}");
-
-                    //
-                    // Unparent BEFORE holding to prevent staying as child
-                    emberToHold.transform.parent = null;
-
-                    _Holding(emberToHold);
-                    currentHeldEmber = emberToHold;
+                    currentHeldEmber = nearest;
+                    _Holding(currentHeldEmber);
                     isHoldingJ = true;
-                    Debug.Log($"<color=green>✓ Holding Ember: {emberToHold.name}</color>");
+
+                    Debug.Log($"<color=green>✓ Picked up {currentHeldEmber.name}</color>");
                 }
                 else
                 {
-                    Debug.LogError($"<color=red> Failed to claim ember {emberToHold.name} - state: {emberCurrentState}</color>");
+                    Debug.Log("<color=red>No ember or ingredient nearby!</color>");
                 }
             }
         }
+
 
         // HOLD J: Show trajectory line
         if (Input.GetKey(KeyCode.J) && currentHeldEmber != null)
@@ -92,7 +73,7 @@ public class Projectile : MonoBehaviour
             Ray ray = _Camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, 1000f)) // Added max distance
+            if (Physics.Raycast(ray, out hit, 500f)) // Added max distance
             {
                 Vector3 direction = hit.point - Spoon.position;
                 Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
@@ -107,6 +88,7 @@ public class Projectile : MonoBehaviour
                     float angle, v0, time;
                     CalculatePathWithH(targetPos, height, out angle, out v0, out time);
                     DrawPath(groundDirection.normalized, v0, angle, time, _Step);
+                    
                 }
             }
         }
@@ -117,10 +99,7 @@ public class Projectile : MonoBehaviour
 
         // RELEASE J: Throw the ember
         if (Input.GetKeyUp(KeyCode.J))
-        {
-            Debug.Log($"<color=cyan>J Key Released!</color>");
-            Debug.Log($"  - Current Held Ember: {(currentHeldEmber == null ? "NULL" : currentHeldEmber.name)}");
-            Debug.Log($"  - isHoldingJ: {isHoldingJ}");
+        { 
 
             if (currentHeldEmber != null && isHoldingJ)
             {
@@ -149,14 +128,13 @@ public class Projectile : MonoBehaviour
 
                         GameObject emberBeingThrown = currentHeldEmber;
 
-                        // Clear references BEFORE throwing (allows consecutive throws)
+                        
                         currentHeldEmber = null;
                         isHoldingJ = false;
 
                         _Throw();
 
-                        //Don't stop coroutines - allow multiple simultaneous throws
-                        // Each ember has its own coroutine
+                        
                         StartCoroutine(Courotine_Movement(groundDirection.normalized, v0, angle, time, emberBeingThrown));
 
                         Debug.Log($"<color=green>✓ Threw {emberBeingThrown.name}!</color>");
@@ -177,6 +155,30 @@ public class Projectile : MonoBehaviour
                 if (_Line != null) _Line.enabled = false;
             }
         }
+    }
+    private GameObject FindNearestEmber()
+    {
+        float detectRadius = 2.5f; // how close the ember must be to pick up
+        Collider[] nearbyObjects = Physics.OverlapSphere(transform.position, detectRadius);
+
+        GameObject nearest = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (Collider col in nearbyObjects)
+        {
+            // Check tag or component type for embers/ingredients
+            if (col.CompareTag("Ember") || col.CompareTag("Ingredient"))
+            {
+                float dist = Vector3.Distance(transform.position, col.transform.position);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = col.gameObject;
+                }
+            }
+        }
+
+        return nearest;
     }
 
     private void DrawPath(Vector3 direction, float v0, float angle, float time, float step)
@@ -225,9 +227,7 @@ public class Projectile : MonoBehaviour
 
     IEnumerator Courotine_Movement(Vector3 direction, float v0, float angle, float time, GameObject ember)
     {
-        Debug.Log($"<color=magenta>Starting throw coroutine for {ember.name}</color>");
-
-        // Store the starting position so ember doesn't follow player
+        
         Vector3 throwStartPosition = Spoon.position;
 
         // Disable collider during flight to prevent mid-air collisions
@@ -261,18 +261,10 @@ public class Projectile : MonoBehaviour
         {
             emberCollider.enabled = true;
         }
-
-        // Re-enable NavMeshAgent when landed
-        NavMeshAgent agent = ember.GetComponent<NavMeshAgent>();
-        if (agent != null)
-        {
-            agent.enabled = true;
-        }
-
         // Release ember back to FREE state after landing
-        EmberStateManager.Instance.ReleaseEmber(ember);
+        
         IsThrown = false;
-        Debug.Log($"<color=green>✓ {ember.name} landed at {ember.transform.position}</color>");
+        
     }
 
     public void _Holding(GameObject Ember)
@@ -282,12 +274,7 @@ public class Projectile : MonoBehaviour
         Ember.transform.localPosition = Vector3.zero; // Center on spoon
 
         // Disable NavMeshAgent while being held
-        NavMeshAgent agent = Ember.GetComponent<NavMeshAgent>();
-        if (agent != null)
-        {
-            agent.enabled = false;
-            Debug.Log($"  - Disabled NavMeshAgent");
-        }
+       
 
         Rigidbody rb = Ember.GetComponent<Rigidbody>();
         if (rb != null)
@@ -303,7 +290,6 @@ public class Projectile : MonoBehaviour
             col.enabled = false;
         }
     }
-
     public void _Throw()
     {
         IsThrown = true;
@@ -314,15 +300,14 @@ public class Projectile : MonoBehaviour
 
             Debug.Log($"  - Unparented {Ember.name} from Spoon");
 
-            // FIXED: Re-enable collider immediately on throw
+            
             Collider col = Ember.GetComponent<Collider>();
             if (col != null)
             {
                 col.enabled = true;
             }
 
-            // Keep NavMeshAgent disabled during flight
-            // It will be re-enabled when it lands
+           
 
             Rigidbody rb = Ember.GetComponent<Rigidbody>();
             if (rb != null)
@@ -330,7 +315,9 @@ public class Projectile : MonoBehaviour
                 rb.isKinematic = true; // Keep kinematic during scripted flight
                 Debug.Log($"  - Kept Rigidbody kinematic for flight");
             }
-            Spoon.transform.DetachChildren();
+            Spoon.DetachChildren();
         }
     }
+
+    
 }

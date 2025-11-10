@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class CountdownTimer : MonoBehaviour
 {
@@ -26,7 +27,11 @@ public class CountdownTimer : MonoBehaviour
         if (isPaused) return;
         currentTime -= Time.deltaTime;
         if (currentTime <= 0f)
+        {
             currentTime = 0f;
+            SceneManager.LoadScene("YouWin");
+        }
+    
 
         UpdateTimerUI();
     }
