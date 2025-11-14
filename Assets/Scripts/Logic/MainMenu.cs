@@ -5,7 +5,7 @@ public class MainMenu : MonoBehaviour
 {
     [Header("Canvas References")]
     public GameObject mapMenuCanvas;
-    public GameObject optionsMenuCanvas;
+    public GameObject controlsMenuCanvas;
     public GameObject mainMenuCanvas;
     public GameObject creditMenuCanvas;
 
@@ -14,9 +14,9 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("Milestone1Scene");
     }
 
-    public void OpenOptions()
+    public void OpenControls()
     {
-        optionsMenuCanvas.SetActive(true);
+        controlsMenuCanvas.SetActive(true);
         mainMenuCanvas.SetActive(false);
     }
 
