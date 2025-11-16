@@ -7,7 +7,7 @@ public class RoughEmberPathing : MonoBehaviour
     public Transform Spoon;
     private Rigidbody body;
     public Transform aim;
-    public Throwable throwable;
+  
 
    
     
@@ -26,10 +26,10 @@ public class RoughEmberPathing : MonoBehaviour
         {
             print("Beinf Carried");
         }
-        else if(throwable.catapulted)
-        {
-            Ember.destination = aim.position;
-        }
+       // else if()
+        //{
+        //    Ember.destination = aim.position;
+       //}
         else
         {
             Ember.destination = Spoon.position;
