@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -14,6 +15,12 @@ public class InParty : MonoBehaviour
     {
         InCurrentParty = new List <GameObject> ();
     }
+
+    internal void AddToParty(GameObject newIngredient)
+    {
+        InCurrentParty.Add (newIngredient);
+    }
+
     // Update is called once per frame
     void Update()
     {

@@ -1,61 +1,62 @@
-using System;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 public class ItemSpawner : MonoBehaviour
 {
     [Header("Ingredients Prefabs")]
-    [SerializeField] private GameObject[] ingredients;
-    [Header("Spawn Points")]
+    [SerializeField] private Projectile[] ingredients;
+
+    [Header("Spawn Point")]
     [SerializeField] private Transform spawnPoint;
 
-    [Header("Number of Ingredients to Spawn")]
-    [SerializeField] private int numberToSpawn = 1;
-    private Projectile projectile;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Spawn Settings")]
+    [SerializeField] private float spawnDelay = 0.3f;
+
+    private int lastIndex = -1;
+    private bool canSpawn = true;
+
+    [SerializeField] private Transform spoon;
+
+    private void Start()
     {
-        
+        if (spawnPoint == null)
+            spawnPoint = transform;
+
+        SpawnIngredient();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SpawnIngredient()
     {
-        
+        if (!canSpawn || ingredients.Length == 0) return;
+        StartCoroutine(SpawnAfterDelay());
     }
 
-    public void spawnitem()
+    private IEnumerator SpawnAfterDelay()
     {
-        if (projectile.currentHeldEmber == null & Input.GetKeyUp(KeyCode.J))
+        canSpawn = false;
+        yield return new WaitForSeconds(spawnDelay);
+
+        int index = GetRandomIngredientIndex();
+        Projectile prefab = ingredients[index];
+
+        Projectile instance = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+        instance.SetSpoon(spoon); // IMPORTANT FIX
+
+        canSpawn = true;
+    }
+
+    private int GetRandomIngredientIndex()
+    {
+        if (ingredients.Length == 1) return 0;
+
+        int randomIndex;
+        do
         {
-            RandomIngredientSpawn();
+            randomIndex = Random.Range(0, ingredients.Length);
         }
-        int spawnCount = Mathf.Min(numberToSpawn, ingredients.Length);
-        for (int i = 0; i < spawnCount; i++)
-        {
-            GameObject ingredientPrefab = ingredients[i];
-            
+        while (randomIndex == lastIndex);
 
-
-            GameObject newIngredient = Instantiate(ingredientPrefab, spawnPoint.position, spawnPoint.rotation);
-
-
-
-            Debug.Log($"Spawned {newIngredient.name} at {spawnPoint.name}");
-        }
+        lastIndex = randomIndex;
+        return randomIndex;
     }
-
-    private void RandomIngredientSpawn()
-    {
-        ShuffleArray(ingredients);
-    }
-    //when an ember or ingredeint is thrown it randomly selects an ingredeint or ember to spawn in
-    private void ShuffleArray<T>(T[] array)
-    {
-        for (int i = array.Length - 1; i > 0; i--)
-        {
-            int randIndex = UnityEngine.Random.Range(0, i + 1);
-            (array[i], array[randIndex]) = (array[randIndex], array[i]);
-        }
-    }
-
 }

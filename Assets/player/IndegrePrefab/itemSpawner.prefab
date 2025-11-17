@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &178914422869818382
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 220628374074726139}
+  - component: {fileID: 554376105377607637}
+  m_Layer: 0
+  m_Name: itemSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &220628374074726139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178914422869818382}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -26.1, y: 1, z: -18.42}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &554376105377607637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178914422869818382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75b0590a73466064884bce7466581452, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemSpawner
+  ingredients:
+  - {fileID: 7716816493520249640, guid: 5ef6c21d833d25045b8d8d3296738614, type: 3}
+  - {fileID: 629189995597170711, guid: a7c29f881b54fe04a90006e7e5b561b0, type: 3}
+  - {fileID: 6280891233636622397, guid: 7653d09745aa6df4ea1ef5ae3d5d07ba, type: 3}
+  - {fileID: 5007807904264243560, guid: 404f65f02c43c0345af3b40aedf9d0f4, type: 3}
+  - {fileID: 2661983614173887830, guid: 0e8fe93e73eebe74691e94f5e4945fd8, type: 3}
+  - {fileID: 4754334934011650858, guid: f6ecf9e521c6c9344929952bab0c428a, type: 3}
+  - {fileID: 1435581295849418417, guid: c2cfa5b84b8b13e49aec8221e7d29b71, type: 3}
+  - {fileID: 5030869281873727262, guid: 4730f7adb7a46c946bdd886ee38dabce, type: 3}
+  - {fileID: 3897674861571651520, guid: 60f88bd9c83984044ab618d5898ae202, type: 3}
+  - {fileID: 4226357832373257287, guid: ff4acc6ecd101eb45b1c52e9abf7477e, type: 3}
+  - {fileID: 8703014446823088828, guid: 48685396a0b850e428070bd7178b95c4, type: 3}
+  - {fileID: 2364559632938506315, guid: b904646c00e235041b1fce4111f0485f, type: 3}
+  - {fileID: 3393845970470624021, guid: 67a3b5812fcf36a418a77491ecff87c3, type: 3}
+  spawnPoint: {fileID: 220628374074726139}
+  spawnDelay: 0.1
