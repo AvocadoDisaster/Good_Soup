@@ -129,6 +129,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PotController
   requiredIngredients: 9
+  potl: {fileID: 0}
+  requiredGarbanzoBeans: 15
   allPossibleIngredients:
   - Carrot
   - Mushroom
@@ -145,6 +147,8 @@ MonoBehaviour:
   Ingredeient: {fileID: 0}
   gameTimer: {fileID: 0}
   emberPrefab: {fileID: 0}
+  winUI: {fileID: 0}
+  winSceneName: WinScene
   wrongIngredientTimePenalty: 15
   correctIngredientFX: {fileID: 0}
   wrongIngredientFX: {fileID: 0}

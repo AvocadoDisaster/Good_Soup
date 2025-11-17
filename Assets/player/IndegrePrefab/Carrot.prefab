@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 3485101405448926668}
   - component: {fileID: 457420048019869272}
   - component: {fileID: 8058794583595802586}
+  - component: {fileID: 8747893586276242505}
+  - component: {fileID: 8019809232815839722}
   m_Layer: 9
   m_Name: Carrot
   m_TagString: Ingredient
@@ -29,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 7716816493520249640}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -42.1, y: 0.5, z: -3.8}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -104,7 +106,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ce0caee2137cc5f418b1ad07c1086a57, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ddbe587889b39674c844bc1d258123b3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -163,6 +165,45 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &8747893586276242505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7716816493520249640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 745001f04c57b574e94c8854dc5b5423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Projectile
+  _Line: {fileID: 3195509689104292416}
+  _Step: 0.1
+  IsThrown: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  _Camera: {fileID: 0}
+  trajectoryPoints: 30
+  trajectoryTimeStep: 0.1
+  indicatorHoverHeight: 0.2
+  currentHeldEmber: {fileID: 0}
+  lineOriginOffset: {x: 15, y: 0, z: 20}
+  groundCheckRadius: 1
+  spawner: {fileID: 0}
+  ingredientLifetime: 8
+--- !u!114 &8019809232815839722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7716816493520249640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1560d5ac84ac10d46aaf19d8ae546308, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThrownIngredient
 --- !u!1 &8325308576613742140
 GameObject:
   m_ObjectHideFlags: 0

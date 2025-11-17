@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI ingredientCountText;
-    public TextMeshProUGUI emberCountText;
+   
 
     [Header("Scoring")]
     public int ingredientPoints = 1;
@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     private int embersScored = 0;
     private float timeRemaining;
     private bool gameActive = false;
+    EndScreenController endScreenController;
 
     // Ingredient tracking dictionary
     private Dictionary<string, int> ingredientCounts = new Dictionary<string, int>();
@@ -95,7 +96,7 @@ public class GameManager : MonoBehaviour
     {
         if (!gameActive) return;
 
-        embersScored++;
+        ingredientsScored++;
         totalScore += emberPoints;
 
         Debug.Log($"<color=orange>Ember scored! +{emberPoints} points! Total: {embersScored}</color>");
@@ -115,10 +116,7 @@ public class GameManager : MonoBehaviour
             ingredientCountText.text = "Ingredients: " + ingredientsScored;
         }
 
-        if (emberCountText != null)
-        {
-            emberCountText.text = "Embers: " + embersScored;
-        }
+       
     }
 
     void UpdateTimerUI()
@@ -134,6 +132,7 @@ public class GameManager : MonoBehaviour
     void EndGame()
     {
         gameActive = false;
+        DontDestroyOnLoad(this);
 
         // Save all stats for end screen
         PlayerPrefs.SetInt("FinalScore", totalScore);
@@ -147,7 +146,7 @@ public class GameManager : MonoBehaviour
             breakdown += kvp.Key + ":" + kvp.Value + ";";
         }
         PlayerPrefs.SetString("IngredientBreakdown", breakdown);
-
+       
         PlayerPrefs.Save();
 
         Debug.Log("<color=cyan>Game Over! Loading End Scene...</color>");
