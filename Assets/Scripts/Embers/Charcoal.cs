@@ -335,7 +335,7 @@ public class Charcoal : MonoBehaviour
 
         if (isBeingCarried && pot != null)
         {
-            Gizmos.color = Color.orange;
+            
             Gizmos.DrawLine(transform.position, pot.transform.position);
         }
 
