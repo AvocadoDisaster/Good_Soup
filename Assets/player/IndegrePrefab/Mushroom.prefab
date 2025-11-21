@@ -191,7 +191,20 @@ MonoBehaviour:
   lineOriginOffset: {x: 15, y: 0, z: 20}
   groundCheckRadius: 1
   spawner: {fileID: 0}
-  ingredientLifetime: 8
+  ingredientLifetime: 2
+  throwCooldown: 0.7
+  lineResponseSpeed: 0.05
+  audioSource: {fileID: 0}
+  throwSound: {fileID: 8300000, guid: c073c74335f0daf48a56676589b5a13c, type: 3}
+  emberSparkSound: {fileID: 8300000, guid: 84885f48170ba184b863097e0eb62b14, type: 3}
+  grandmaVoiceLines:
+  - {fileID: 8300000, guid: d7b79a5741ad9154e81f159ad274ff64, type: 3}
+  - {fileID: 8300000, guid: 03bfa164c410b4e479d702bc82be271a, type: 3}
+  - {fileID: 8300000, guid: 3841ebb55a8db5f40a42fe0d0a211465, type: 3}
+  - {fileID: 8300000, guid: ebd93f22504816a469cfe8b00a86c78d, type: 3}
+  - {fileID: 8300000, guid: 17055d332bbb08f429ba4062eb6f1d0a, type: 3}
+  - {fileID: 8300000, guid: aab7d14b2b7fea14780003fbf23e6e71, type: 3}
+  grandmaChance: 0.23
 --- !u!114 &-5183443035384720288
 MonoBehaviour:
   m_ObjectHideFlags: 0

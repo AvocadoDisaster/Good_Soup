@@ -5,6 +5,7 @@ public class PotCollision : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private ParticleSystem splashEffect;
     [SerializeField] private AudioSource scoreSound;
+    [SerializeField] private AudioSource trashSound;
 
     [Header("Score Display")]
     [SerializeField] private GameObject scorePopupPrefab;
@@ -15,7 +16,6 @@ public class PotCollision : MonoBehaviour
     private void Start()
     {
         gameManager = GameManager.Instance;
-
         if (gameManager == null)
         {
             Debug.LogError("<color=red>GameManager not found!</color>");
@@ -28,35 +28,48 @@ public class PotCollision : MonoBehaviour
             col.isTrigger = true;
         }
 
-        Debug.Log("<color=green>✓ Pot Trigger initialized</color>");
+        Debug.Log("<color=green> Pot Trigger initialized</color>");
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log($"<color=yellow>Pot trigger hit by: {other.gameObject.name} (Tag: {other.tag})</color>");
 
-        // Check if it's an EMBER (worth 2 points, doesn't count as ingredient)
+        // NEW: Check if it's TRASH (contains "trash" in name - case insensitive)
+        if (other.gameObject.name.ToLower().Contains("trash"))
+        {
+            Debug.Log($"<color=red> TRASH ITEM DETECTED: {other.gameObject.name}</color>");
+            PlayTrashEffects();
+
+            if (gameManager != null)
+            {
+                gameManager.TrashCollected();
+            }
+
+            Destroy(other.gameObject);
+            return; 
+        }
+
+        
         if (other.CompareTag("Ember"))
         {
             Debug.Log($"<color=orange> EMBER SCORED! +2 POINTS!</color>");
-
             PlayEffects();
 
             if (gameManager != null)
             {
-                gameManager.EmberScored(); // Separate ember scoring
+                gameManager.EmberScored();
             }
 
             Destroy(other.gameObject);
-            return; // Exit early so ember isn't counted as ingredient
+            return; 
         }
 
-        // Check for throwable INGREDIENT (worth 1 point)
+       
         ThrowableIngredient ingredient = other.GetComponent<ThrowableIngredient>();
         if (ingredient != null && ingredient.HasBeenThrown())
         {
             Debug.Log($"<color=green> INGREDIENT SCORED: {other.gameObject.name}</color>");
-
             PlayEffects();
 
             if (gameManager != null)
@@ -68,11 +81,10 @@ public class PotCollision : MonoBehaviour
             return;
         }
 
-        // Fallback: If it has "Ingredient" tag but no ThrowableIngredient component
+        
         if (other.CompareTag("Ingredient"))
         {
-            Debug.Log($"<color=green>🎯 INGREDIENT SCORED (tag-based): {other.gameObject.name}</color>");
-
+            Debug.Log($"<color=green> INGREDIENT SCORED (tag-based): {other.gameObject.name}</color>");
             PlayEffects();
 
             if (gameManager != null)
@@ -99,6 +111,26 @@ public class PotCollision : MonoBehaviour
         if (scorePopupPrefab != null && scorePopupSpawnPoint != null)
         {
             Instantiate(scorePopupPrefab, scorePopupSpawnPoint.position, Quaternion.identity);
+        }
+    }
+
+    private void PlayTrashEffects()
+    {
+        
+        if (splashEffect != null)
+        {
+            splashEffect.Play();
+        }
+
+       
+        if (trashSound != null)
+        {
+            trashSound.Play();
+        }
+        else if (scoreSound != null)
+        {
+           
+            scoreSound.Play();
         }
     }
 

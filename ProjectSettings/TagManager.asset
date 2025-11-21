@@ -12,6 +12,7 @@ TagManager:
   - Ember
   - Charcoal
   - Garbonzo
+  - Trash
   layers:
   - Default
   - TransparentFX
@@ -24,7 +25,7 @@ TagManager:
   - Charcoal
   - Ingredient
   - GarbanzoBeans
-  - 
+  - Trash
   - 
   - 
   - 
