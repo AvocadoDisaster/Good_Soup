@@ -193,7 +193,7 @@ MonoBehaviour:
   spawner: {fileID: 0}
   ingredientLifetime: 8
   throwCooldown: 0.5
-  lineResponseSpeed: 0.05
+  lineResponseSpeed: 0.1
   audioSource: {fileID: 0}
   throwSound: {fileID: 0}
   emberSparkSound: {fileID: 0}
