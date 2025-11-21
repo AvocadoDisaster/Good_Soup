@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("Milestone1Scene");
+        SceneManager.LoadScene("GameScene");
     }
 
     public void OpenControls()
