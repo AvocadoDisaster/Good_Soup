@@ -96,7 +96,7 @@ public class SimplePotTrigger : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
-            Gizmos.DrawCube(transform.position, col.bounds.size);
+            Gizmos.DrawCube(transform.position, col.bounds.size );
         }
     }
 }
