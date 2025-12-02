@@ -184,16 +184,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   _Camera: {fileID: 0}
-  trajectoryPoints: 30
-  trajectoryTimeStep: 0.1
-  indicatorHoverHeight: 0.2
   currentHeldEmber: {fileID: 0}
-  lineOriginOffset: {x: 15, y: 0, z: 20}
-  groundCheckRadius: 1
   spawner: {fileID: 0}
   ingredientLifetime: 8
   throwCooldown: 0.5
-  lineResponseSpeed: 0.05
   audioSource: {fileID: 0}
   throwSound: {fileID: 0}
   emberSparkSound: {fileID: 0}

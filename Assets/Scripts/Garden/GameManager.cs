@@ -13,17 +13,17 @@ public class GameManager : MonoBehaviour
     public int trashLimit = 3; // Number of trash items before game over
 
     [Header("UI References")]
-    public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI timerText;
+    [SerializeField]private TextMeshProUGUI scoreText;
+   [SerializeField] private TextMeshProUGUI timerText;
     public TextMeshProUGUI ingredientCountText;
-    public TextMeshProUGUI trashCountText; // Display trash count
+   [SerializeField] private TextMeshProUGUI trashCountText; // Display trash count
     public GameObject gameOverUI; // Optional game over panel for trash
 
     [Header("Scoring")]
     public int ingredientPoints = 1;
     public int emberPoints = 2;
     public int trashPenalty = -3; // Points lost per trash item in POT
-
+    
     [Header("Audio")]
     [SerializeField] private AudioSource gameOverSound; // NEW: Womp womp sound for trash game over
 
@@ -55,6 +55,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+
+       // scoreText = GetComponent<TextMeshProUGUI>();
+       // timerText = GetComponent<TextMeshProUGUI>();
+       // trashCountText = GetComponent<TextMeshProUGUI>();
+        
         IsGameActive();
         timeRemaining = gameTime;
         gameActive = true;
@@ -64,7 +69,11 @@ public class GameManager : MonoBehaviour
             gameOverUI.SetActive(false);
         }
 
-        UpdateUI();
+         totalScore = 0;
+     ingredientsScored = 0;
+      embersScored = 0;
+     trashCount = 0;
+    UpdateUI();
     }
 
     void Update()
@@ -188,7 +197,7 @@ public class GameManager : MonoBehaviour
             int seconds = Mathf.FloorToInt(timeRemaining % 60);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-            // Optional: Make timer red when low
+            
             if (timeRemaining <= 10f)
             {
                 timerText.color = Color.red;
@@ -212,7 +221,7 @@ public class GameManager : MonoBehaviour
         if (endedByTrash)
         {
             // LOSE CONDITION - Too much trash
-            Debug.Log("<color=red>💀 GAME OVER! Too much trash in the soup!</color>");
+            Debug.Log("<color=red> GAME OVER! Too much trash in the soup!</color>");
 
             // Play womp womp sound effect
             if (gameOverSound != null)
@@ -228,15 +237,15 @@ public class GameManager : MonoBehaviour
             else
             {
                 // Load game over scene
-                DontDestroyOnLoad(this);
+                
                 SaveAndLoadEndScene();
             }
         }
         else
         {
             // WIN CONDITION - Time ran out normally
-            Debug.Log("<color=cyan>🎉 Time's up! Loading End Scene...</color>");
-            DontDestroyOnLoad(this);
+            Debug.Log("<color=cyan> Time's up! Loading End Scene...</color>");
+            
             SaveAndLoadEndScene();
         }
     }
@@ -263,8 +272,7 @@ public class GameManager : MonoBehaviour
         // Load appropriate scene
         if (gameOverByTrash)
         {
-            // Load a "GameOver" scene or the same scene with different display
-            // Check in your end screen: if (PlayerPrefs.GetInt("GameOverByTrash") == 1) show LOSE
+           
             SceneManager.LoadScene("YouWin"); // You can rename this to "EndScreen" 
         }
         else
@@ -300,13 +308,13 @@ public class GameManager : MonoBehaviour
         return gameOverByTrash;
     }
 
-    // NEW: Helper to check if player lost
+  
     public bool DidPlayerLose()
     {
         return gameOverByTrash;
     }
 
-    // NEW: Helper to check if player won
+    
     public bool DidPlayerWin()
     {
         return !gameOverByTrash && !gameActive;
