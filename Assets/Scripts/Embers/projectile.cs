@@ -8,7 +8,7 @@ using UnityEngine.AI;
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private LineRenderer _Line;
-    [SerializeField] private float _Step = 0.1f;
+    [SerializeField] private float _Step = 0.05f;
     private Transform Spoon;
     public bool IsThrown;
     private bool hasBeenThrown = false;
@@ -30,6 +30,7 @@ public class Projectile : MonoBehaviour
     private Rigidbody rb;
 
     private Vector3 lockedThrowDirection;
+    private Vector3 lockedTargetPoint;
     private bool hasLockedDirection = false;
     [SerializeField] private float ingredientLifetime = 8f;
 
@@ -38,21 +39,20 @@ public class Projectile : MonoBehaviour
     private float lastThrowTime = -999f;
     private bool isOnCooldown => Time.time < lastThrowTime + throwCooldown;
 
-    // TRAJECTORY SMOOTHING - Simple and responsive
+    // TRAJECTORY - Direct and precise
     private bool isShowingTrajectory = false;
-    private Vector3 lastMouseDirection;
-    [SerializeField] private float lineResponseSpeed = 0.05f; // Lower = more responsive (0.02-0.15)
+    private Vector3 currentMouseWorldPoint;
 
-    // NEW: Prevent multiple throws
+    // Prevent multiple throws
     private bool isProcessingThrow = false;
 
     // AUDIO SYSTEM
     [Header("Audio Settings")]
-    [SerializeField] private AudioSource audioSource; // Main audio source
-    [SerializeField] private AudioClip throwSound; // General throwing sound
-    [SerializeField] private AudioClip emberSparkSound; // Special sound for embers
-    [SerializeField] private AudioClip[] grandmaVoiceLines; // Array of grandma voice lines
-    [SerializeField][Range(0f, 1f)] private float grandmaChance = 0.33f; // 1 in 3 chance
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip throwSound;
+    [SerializeField] private AudioClip emberSparkSound;
+    [SerializeField] private AudioClip[] grandmaVoiceLines;
+    [SerializeField][Range(0f, 1f)] private float grandmaChance = 0.33f;
 
     private void Start()
     {
@@ -62,6 +62,7 @@ public class Projectile : MonoBehaviour
             _Line.enabled = false;
             _Line.startWidth = 0.15f;
             _Line.endWidth = 0.15f;
+            _Line.useWorldSpace = true; // CRITICAL for consistent positioning
 
             if (_Line.material == null || _Line.material.shader.name != "Sprites/Default")
             {
@@ -91,7 +92,7 @@ public class Projectile : MonoBehaviour
             Debug.LogWarning("Spoon reference not set — auto-found at runtime!");
         }
 
-        // Setup audio source if not assigned
+        // Setup audio source
         if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
@@ -109,7 +110,6 @@ public class Projectile : MonoBehaviour
         {
             Debug.Log("<color=yellow>J Key Pressed Down</color>");
 
-            // Check cooldown
             if (isOnCooldown)
             {
                 Debug.Log($"<color=orange>On cooldown! {(lastThrowTime + throwCooldown - Time.time):F1}s remaining</color>");
@@ -136,51 +136,51 @@ public class Projectile : MonoBehaviour
             }
         }
 
-        // HOLD J: Show trajectory and UPDATE direction continuously (follows mouse)
+        // HOLD J: Show trajectory - DIRECT, NO SMOOTHING
         if (Input.GetKey(KeyCode.J) && currentHeldEmber != null && !isOnCooldown)
         {
-            // Enable line once when starting to show trajectory
+            // Enable line
             if (_Line != null && !isShowingTrajectory)
             {
                 _Line.enabled = true;
                 isShowingTrajectory = true;
-                lastMouseDirection = Vector3.zero;
             }
 
             Ray ray = _Camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            // Raycast against EVERYTHING to get smooth updates
             if (Physics.Raycast(ray, out hit, 500f))
             {
-                Vector3 direction = hit.point - Spoon.position;
-                Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
+                // Store exact mouse hit point
+                currentMouseWorldPoint = hit.point;
+
+                // Get ingredient center
+                Vector3 ingredientCenter = currentHeldEmber.transform.position;
+
+                // Calculate direction
+                Vector3 fullDirection = currentMouseWorldPoint - ingredientCenter;
+                Vector3 groundDirection = new Vector3(fullDirection.x, 0, fullDirection.z);
 
                 if (groundDirection.magnitude > 0.1f)
                 {
-                    Vector3 targetDirection = groundDirection.normalized;
-
-                    // Very light smoothing for anti-jitter
-                    if (lastMouseDirection == Vector3.zero)
-                    {
-                        lastMouseDirection = targetDirection;
-                    }
-                    else
-                    {
-                        // Interpolate with high responsiveness
-                        lastMouseDirection = Vector3.Lerp(lastMouseDirection, targetDirection, 1f - lineResponseSpeed);
-                    }
-
-                    lockedThrowDirection = lastMouseDirection;
+                    Vector3 direction = groundDirection.normalized;
+                    lockedThrowDirection = direction;
+                    lockedTargetPoint = currentMouseWorldPoint;
                     hasLockedDirection = true;
 
-                    Vector3 targetPos = new Vector3(groundDirection.magnitude, direction.y, 0);
-                    float height = targetPos.y + targetPos.magnitude / 2f;
-                    height = Mathf.Max(0.01f, height);
+                    // Calculate trajectory
+                    float distance = groundDirection.magnitude;
+                    float heightDiff = currentMouseWorldPoint.y - ingredientCenter.y;
+
+                    Vector3 targetPos = new Vector3(distance, heightDiff, 0);
+                    float arcHeight = targetPos.y + distance / 2f;
+                    arcHeight = Mathf.Max(0.5f, arcHeight);
 
                     float angle, v0, time;
-                    CalculatePathWithH(targetPos, height, out angle, out v0, out time);
-                    DrawPath(lastMouseDirection, v0, angle, time, _Step);
+                    CalculatePathWithH(targetPos, arcHeight, out angle, out v0, out time);
+
+                    // Draw from ingredient center to mouse point
+                    DrawPrecisePath(ingredientCenter, direction, v0, angle, time, currentMouseWorldPoint);
                 }
             }
         }
@@ -190,133 +190,99 @@ public class Projectile : MonoBehaviour
             isShowingTrajectory = false;
         }
 
-        // RELEASE J: Throw ingredient with FINAL locked direction
+        // RELEASE J: Throw
         if (Input.GetKeyUp(KeyCode.J))
         {
             if (currentHeldEmber != null && isHoldingJ && hasLockedDirection && !isOnCooldown && !isProcessingThrow)
             {
-                isProcessingThrow = true; // Prevent multiple throws
+                isProcessingThrow = true;
 
                 Debug.Log($"<color=cyan>Processing throw for {currentHeldEmber.name}</color>");
 
-                Ray ray = _Camera.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
+                GameObject ingredientToThrow = currentHeldEmber;
+                Vector3 throwStartPos = ingredientToThrow.transform.position;
+                Vector3 throwDirection = lockedThrowDirection;
+                Vector3 targetPoint = lockedTargetPoint;
 
-                // Raycast against everything for final throw calculation
-                if (Physics.Raycast(ray, out hit, 1000f))
+                // Calculate final trajectory
+                Vector3 toTarget = targetPoint - throwStartPos;
+                Vector3 groundDir = new Vector3(toTarget.x, 0, toTarget.z);
+                float distance = groundDir.magnitude;
+                float heightDiff = targetPoint.y - throwStartPos.y;
+
+                Vector3 targetPos = new Vector3(distance, heightDiff, 0);
+                float arcHeight = targetPos.y + distance / 2f;
+                arcHeight = Mathf.Max(0.5f, arcHeight);
+
+                float angle, v0, time;
+                CalculatePathWithH(targetPos, arcHeight, out angle, out v0, out time);
+
+                // Mark as thrown
+                Projectile proj = ingredientToThrow.GetComponent<Projectile>();
+                if (proj != null)
+                    proj.hasBeenThrown = true;
+
+                // SET COOLDOWN
+                lastThrowTime = Time.time;
+
+                // Clear state
+                currentHeldEmber = null;
+                isHoldingJ = false;
+                hasLockedDirection = false;
+                isShowingTrajectory = false;
+
+                if (_Line != null)
                 {
-                    Vector3 direction = hit.point - Spoon.position;
-                    Vector3 groundDirection = new Vector3(direction.x, 0, direction.z);
-
-                    if (groundDirection.magnitude > 0.1f)
-                    {
-                        Vector3 targetPos = new Vector3(groundDirection.magnitude, direction.y, 0);
-                        float height = targetPos.y + targetPos.magnitude / 2f;
-                        height = Mathf.Max(0.01f, height);
-
-                        float angle, v0, time;
-                        CalculatePathWithH(targetPos, height, out angle, out v0, out time);
-
-                        // Capture all data BEFORE making changes
-                        GameObject ingredientToThrow = currentHeldEmber;
-                        
-
-                        // Mark this ingredient permanently unthrowable
-                        Projectile proj = ingredientToThrow.GetComponent<Projectile>();
-                        if (proj != null)
-                            proj.hasBeenThrown = true;
-
-                        Vector3 throwStartPos = Spoon.position;
-                        Vector3 throwDirection = lastMouseDirection; // Use the smoothed direction from display
-
-                        // SET COOLDOWN TIMER
-                        lastThrowTime = Time.time;
-
-                        // Clear player state FIRST
-                        currentHeldEmber = null;
-                        isHoldingJ = false;
-                        hasLockedDirection = false;
-                        isShowingTrajectory = false;
-
-                        // Hide line renderer
-                        if (_Line != null)
-                        {
-                            _Line.enabled = false;
-                        }
-
-                        // Clean up ingredient's components
-                        LineRenderer ingredientLine = ingredientToThrow.GetComponent<LineRenderer>();
-                        if (ingredientLine != null)
-                        {
-                            ingredientLine.enabled = false;
-                            Destroy(ingredientLine);
-                            Debug.Log($"  - DESTROYED LineRenderer on {ingredientToThrow.name}");
-                        }
-
-                        Projectile ingredientProjectile = ingredientToThrow.GetComponent<Projectile>();
-                        if (ingredientProjectile != null && ingredientProjectile != this)
-                        {
-                            Destroy(ingredientProjectile);
-                            Debug.Log($"  - DESTROYED Projectile script on {ingredientToThrow.name}");
-                        }
-
-                        // Unparent ingredient
-                        ingredientToThrow.transform.SetParent(null);
-
-                        // Setup for flight
-                        Collider ingredientCol = ingredientToThrow.GetComponent<Collider>();
-                        Rigidbody ingredientRb = ingredientToThrow.GetComponent<Rigidbody>();
-
-                        if (ingredientCol != null)
-                        {
-                            ingredientCol.enabled = false;
-                        }
-
-                        if (ingredientRb != null)
-                        {
-                            ingredientRb.isKinematic = true;
-                            ingredientRb.useGravity = false;
-                        }
-
-                        Debug.Log($"<color=green>✓ Throwing {ingredientToThrow.name}!</color>");
-                        Debug.Log($"  From: {throwStartPos}, Dir: {throwDirection}");
-
-                        // PLAY THROW SOUND EFFECTS
-                        PlayThrowSounds(ingredientToThrow);
-
-                        // Clean up old ThrowController
-                        ThrowController oldController = ingredientToThrow.GetComponent<ThrowController>();
-                        if (oldController != null)
-                        {
-                            Debug.LogWarning($"Found existing ThrowController on {ingredientToThrow.name}, destroying it!");
-                            Destroy(oldController);
-                        }
-
-                        // Add fresh controller
-                        ThrowController controller = ingredientToThrow.AddComponent<ThrowController>();
-
-                        // Start throw and spawn AFTER throw is set up
-                        StartCoroutine(ExecuteThrowSequence(controller, throwStartPos, throwDirection, v0, angle, time, ingredientLifetime, ingredientToThrow));
-
-                        IsThrown = true;
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Target too close to throw!");
-                        hasLockedDirection = false;
-                        isShowingTrajectory = false;
-                        isProcessingThrow = false;
-                        if (_Line != null) _Line.enabled = false;
-                    }
+                    _Line.enabled = false;
                 }
-                else
+
+                // Clean up components
+                LineRenderer ingredientLine = ingredientToThrow.GetComponent<LineRenderer>();
+                if (ingredientLine != null)
                 {
-                    Debug.LogWarning("Raycast didn't hit anything!");
-                    hasLockedDirection = false;
-                    isShowingTrajectory = false;
-                    isProcessingThrow = false;
-                    if (_Line != null) _Line.enabled = false;
+                    ingredientLine.enabled = false;
+                    Destroy(ingredientLine);
                 }
+
+                Projectile ingredientProjectile = ingredientToThrow.GetComponent<Projectile>();
+                if (ingredientProjectile != null && ingredientProjectile != this)
+                {
+                    Destroy(ingredientProjectile);
+                }
+
+                // Unparent
+                ingredientToThrow.transform.SetParent(null);
+
+                // Setup for flight
+                Collider ingredientCol = ingredientToThrow.GetComponent<Collider>();
+                Rigidbody ingredientRb = ingredientToThrow.GetComponent<Rigidbody>();
+
+                if (ingredientCol != null) ingredientCol.enabled = false;
+                if (ingredientRb != null)
+                {
+                    ingredientRb.isKinematic = true;
+                    ingredientRb.useGravity = false;
+                }
+
+                Debug.Log($"<color=green>✓ Throwing {ingredientToThrow.name} to {targetPoint}</color>");
+
+                // Play sounds
+                PlayThrowSounds(ingredientToThrow);
+
+                // Clean up old controller
+                ThrowController oldController = ingredientToThrow.GetComponent<ThrowController>();
+                if (oldController != null)
+                {
+                    Destroy(oldController);
+                }
+
+                // Add controller
+                ThrowController controller = ingredientToThrow.AddComponent<ThrowController>();
+
+                // Start throw
+                StartCoroutine(ExecuteThrowSequence(controller, throwStartPos, throwDirection, v0, angle, time, ingredientLifetime, ingredientToThrow));
+
+                IsThrown = true;
             }
             else if (isOnCooldown)
             {
@@ -325,42 +291,51 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    private void DrawPrecisePath(Vector3 startPos, Vector3 direction, float v0, float angle, float time, Vector3 targetPoint)
+    {
+        if (_Line == null || !_Line.enabled) return;
+
+        int segments = Mathf.Max(15, (int)(time / _Step));
+        _Line.positionCount = segments + 1;
+
+        // Draw arc
+        for (int i = 0; i <= segments; i++)
+        {
+            float t = (time / segments) * i;
+            float x = v0 * t * Mathf.Cos(angle);
+            float y = v0 * t * Mathf.Sin(angle) - 0.5f * -Physics.gravity.y * Mathf.Pow(t, 2);
+
+            Vector3 point = startPos + direction * x + Vector3.up * y;
+            _Line.SetPosition(i, point);
+        }
+
+        // Force last point to exact target
+        _Line.SetPosition(segments, targetPoint);
+    }
+
     private IEnumerator ExecuteThrowSequence(ThrowController controller, Vector3 startPos, Vector3 direction, float v0, float angle, float time, float lifetime, GameObject thrownObject)
     {
-        // Wait one frame for component initialization
         yield return null;
 
         if (controller != null && thrownObject != null)
         {
-            // Start the throw
             controller.StartThrow(startPos, direction, v0, angle, time, lifetime);
-
-            // Wait another frame to ensure throw has started
             yield return null;
 
-            // Now spawn the next ingredient
             if (spawner != null)
             {
                 Debug.Log("<color=cyan>Spawning next ingredient...</color>");
                 spawner.SpawnIngredient();
             }
-            else
-            {
-                Debug.LogError("Spawner reference is null!");
-            }
         }
         else
         {
-            Debug.LogError("ThrowController or ingredient was destroyed before throw could complete!");
-
-            // Still try to spawn if something went wrong
             if (spawner != null)
             {
                 spawner.SpawnIngredient();
             }
         }
 
-        // Reset throw processing flag after a small delay
         yield return new WaitForSeconds(0.2f);
         isProcessingThrow = false;
     }
@@ -378,22 +353,15 @@ public class Projectile : MonoBehaviour
             if (!col.CompareTag("Ember") && !col.CompareTag("Ingredient"))
                 continue;
 
-            
-
             // Don't pick up ingredients that are currently flying
-            ThrowController tc = col.GetComponent<ThrowController>(); // NEVER pick up ingredients that have already been thrown
+            ThrowController tc = col.GetComponent<ThrowController>();
             Projectile proj = col.GetComponent<Projectile>();
+
             if (proj != null && proj.HasBeenThrown)
                 continue;
 
             if (tc != null && tc.IsFlying)
                 continue;
-            // IMPORTANT: Don't pick up trash items!
-            if (col.gameObject.name.ToLower().Contains("trash") && tc.IsFlying)
-            {
-                Debug.Log($"<color=yellow>Skipping trash item: {col.gameObject.name}</color>");
-                continue;
-            }
 
             float dist = Vector3.Distance(transform.position, col.transform.position);
             if (dist < minDist)
@@ -404,47 +372,6 @@ public class Projectile : MonoBehaviour
         }
 
         return nearest;
-    }
-
-    private void DrawPath(Vector3 direction, float v0, float angle, float time, float step)
-    {
-        if (_Line == null || !_Line.enabled) return;
-
-        Vector3 origin = currentHeldEmber != null ?
-            currentHeldEmber.transform.position + lineOriginOffset :
-            Spoon.position;
-
-        step = Mathf.Max(0.01f, step);
-        int posCount = (int)(time / step) + 2;
-
-        // Set position count once
-        if (_Line.positionCount != posCount)
-        {
-            _Line.positionCount = posCount;
-        }
-
-        int count = 0;
-
-        // Draw the path
-        for (float i = 0; i < time; i += step)
-        {
-            float x = v0 * i * Mathf.Cos(angle);
-            float y = v0 * i * Mathf.Sin(angle) - 0.5f * -Physics.gravity.y * Mathf.Pow(i, 2);
-
-            if (count < _Line.positionCount)
-            {
-                _Line.SetPosition(count, origin + direction * x + Vector3.up * y);
-                count++;
-            }
-        }
-
-        // Final position
-        if (count < _Line.positionCount)
-        {
-            float xf = v0 * time * Mathf.Cos(angle);
-            float yf = v0 * time * Mathf.Sin(angle) - 0.5f * -Physics.gravity.y * Mathf.Pow(time, 2);
-            _Line.SetPosition(count, origin + direction * xf + Vector3.up * yf);
-        }
     }
 
     private float QuadraticEquation(float a, float b, float c, float sign)
@@ -476,7 +403,6 @@ public class Projectile : MonoBehaviour
 
         IsThrown = false;
 
-        // Stop any active throw controller
         ThrowController controller = Ember.GetComponent<ThrowController>();
         if (controller != null)
         {
@@ -484,7 +410,6 @@ public class Projectile : MonoBehaviour
             Destroy(controller);
         }
 
-        // Check if this ingredient needs a Projectile script and LineRenderer
         Projectile emberProjectile = Ember.GetComponent<Projectile>();
         if (emberProjectile == null)
         {
@@ -494,7 +419,6 @@ public class Projectile : MonoBehaviour
             Debug.Log($"  - Re-added Projectile script to {Ember.name}");
         }
 
-        // Check if LineRenderer exists, if not add it
         LineRenderer emberLine = Ember.GetComponent<LineRenderer>();
         if (emberLine == null)
         {
@@ -506,29 +430,26 @@ public class Projectile : MonoBehaviour
                 emberLine.endWidth = _Line.endWidth;
                 emberLine.material = new Material(_Line.material);
                 emberLine.colorGradient = _Line.colorGradient;
+                emberLine.useWorldSpace = true;
             }
 
             Debug.Log($"  - Re-added LineRenderer to {Ember.name}");
         }
         emberLine.enabled = false;
 
-        // IMPORTANT: Set parent and position BEFORE physics setup
         Ember.transform.SetParent(Spoon);
         Ember.transform.localPosition = Vector3.zero;
         Ember.transform.localRotation = Quaternion.identity;
 
-        // Now handle physics - this prevents falling through floor
         Rigidbody emberRb = Ember.GetComponent<Rigidbody>();
         if (emberRb != null)
         {
-            // Stop all physics immediately
             emberRb.linearVelocity = Vector3.zero;
             emberRb.angularVelocity = Vector3.zero;
             emberRb.isKinematic = true;
             emberRb.useGravity = false;
         }
 
-        // Disable collider to prevent physics interactions
         Collider emberCol = Ember.GetComponent<Collider>();
         if (emberCol != null) emberCol.enabled = false;
     }
@@ -538,7 +459,6 @@ public class Projectile : MonoBehaviour
         Spoon = spoon.transform;
     }
 
-    // Optional: Visual feedback for cooldown
     public float GetCooldownProgress()
     {
         if (!isOnCooldown) return 1f;
@@ -550,36 +470,30 @@ public class Projectile : MonoBehaviour
         return isOnCooldown;
     }
 
-    // AUDIO METHODS
     private void PlayThrowSounds(GameObject thrownObject)
     {
         if (audioSource == null) return;
 
-        // 1. Always play the throwing sound
         if (throwSound != null)
         {
             audioSource.PlayOneShot(throwSound);
-            Debug.Log("<color=cyan>🎵 Playing throw sound</color>");
+            Debug.Log("<color=cyan> Playing throw sound</color>");
         }
 
-        // 2. Check if it's an ember and play spark sound
         if (thrownObject.CompareTag("Ember") && emberSparkSound != null)
         {
             audioSource.PlayOneShot(emberSparkSound);
             Debug.Log("<color=orange> Playing ember spark sound</color>");
         }
 
-        // 3. Random chance to play grandma voice line (1 in 3 chance)
         if (grandmaVoiceLines != null && grandmaVoiceLines.Length > 0)
         {
             float randomValue = UnityEngine.Random.Range(0f, 1f);
             if (randomValue <= grandmaChance)
             {
-                // Pick a random voice line
                 AudioClip randomVoiceLine = grandmaVoiceLines[UnityEngine.Random.Range(0, grandmaVoiceLines.Length)];
                 if (randomVoiceLine != null)
                 {
-                    // Play with slight delay so it doesn't overlap too much with throw sound
                     StartCoroutine(PlayDelayedSound(randomVoiceLine, 0.1f));
                     Debug.Log("<color=magenta> Playing grandma voice line!</color>");
                 }
